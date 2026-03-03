@@ -1,0 +1,104 @@
+# WooOmni
+
+🍵一款高性能、模块化的 Minecraft 基础管理插件
+
+## 特色
+
+### 🧩 模块化架构
+- **独立模块**：每个功能独立模块，可单独开关
+- **热重载**：支持运行时热重载单个模块
+- **灵活配置**：每个模块可独立选择存储方式
+
+### 💾 多存储支持
+- **YAML**：轻量级文件存储，适合小型服务器
+- **SQLite**：本地数据库，适合单机服务器
+- **MySQL**：网络数据库，适合群组服务器
+
+### ⚡ 性能优化
+- **按需监听**：禁用的模块不注册事件监听器
+- **异步处理**：数据库操作在异步线程执行
+- **内存缓存**：玩家数据优先从内存读取
+- **智能保存**：仅保存变更的数据
+
+### 🔧 已实现功能
+
+#### 飞行模块 (Fly)
+- `/fly` - 切换飞行状态
+- `/fly <玩家>` - 切换其他玩家飞行状态
+- `/flyspeed <1-10>` - 设置飞行速度
+- `/flyspeed <速度> <玩家>` - 设置其他玩家飞行速度
+- 状态持久化保存
+
+#### 无敌模块 (God)
+- `/god` - 切换无敌状态
+- `/god <玩家>` - 切换其他玩家无敌状态
+- 自动取消伤害事件
+- 状态持久化保存
+
+## 环境
+
+- Minecraft 1.21+
+- Java 21+
+- Paper 核心（推荐）
+
+## 命令
+
+| 命令 | 描述 | 权限 |
+|------|------|------|
+| `/wooomni` | 主命令 | `wooomni.use` |
+| `/wooomni reload [模块]` | 重载配置 | `wooomni.reload` |
+| `/fly [玩家]` | 切换飞行状态 | `wooomni.fly` |
+| `/flyspeed <速度> [玩家]` | 设置飞行速度 | `wooomni.flyspeed` |
+| `/god [玩家]` | 切换无敌状态 | `wooomni.god` |
+
+## 权限
+
+| 权限 | 描述 | 默认 |
+|------|------|------|
+| `wooomni.use` | 基础使用权限 | true |
+| `wooomni.admin` | 管理员权限 | op |
+| `wooomni.reload` | 重载权限 | op |
+| `wooomni.fly` | 飞行命令权限 | op |
+| `wooomni.fly.other` | 对他人使用飞行权限 | op |
+| `wooomni.flyspeed` | 飞行速度权限 | op |
+| `wooomni.flyspeed.other` | 对他人设置飞行速度权限 | op |
+| `wooomni.god` | 无敌命令权限 | op |
+| `wooomni.god.other` | 对他人使用无敌权限 | op |
+
+## 配置文件
+
+### config.yml
+全局配置文件，包含 MySQL 连接设置、语言设置等。
+
+### modules.yml
+模块配置文件，控制各模块的开关和存储类型。
+
+```yaml
+modules:
+  fly:
+    enabled: true
+    storage-type: yaml  # yaml/sqlite/mysql
+  god:
+    enabled: true
+    storage-type: yaml
+```
+
+### lang/zh-CN.yml
+中文语言文件，可自定义所有消息内容。
+
+## 存储
+
+### YAML
+数据存储在 `data/fly.yml` 和 `data/god.yml` 文件中。
+
+### SQLite
+每个模块使用独立的 SQLite 数据库文件。
+
+### MySQL
+所有模块共享同一个 MySQL 连接池，使用表前缀区分。
+
+---
+
+❤️ 主包是开发新手，如果有做得不好的地方，欢迎指正。希望能和大家一起交流！
+
+⭐ 觉得有用请给个 Star 爱你哟

@@ -1,0 +1,21 @@
+# WooOmni
+
+settings:
+  debug: false
+  language: zh-CN
+  auto-save-interval: 300
+
+# Storage Configuration
+# Player data storage type: sqlite (default) or mysql
+storage:
+  type: sqlite
+  
+  # MySQL Configuration (only needed when type is mysql)
+  mysql:
+    host: localhost
+    port: 3306
+    database: wooomni
+    user: root
+    password: ""
+    pool-size: 10
+    table-prefix: "wooomni_"

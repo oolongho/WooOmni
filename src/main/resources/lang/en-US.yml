@@ -1,0 +1,33 @@
+prefix: "&8[&6WooOmni&8]&r"
+
+general:
+  no-permission: "&cYou don't have permission to do this."
+  player-only: "&cThis command can only be used by players."
+  player-not-found: "&cPlayer not found: %player%"
+  unknown-command: "&cUnknown command. Use /wo help for help."
+  reload-success: "&aConfiguration reloaded successfully."
+  module-reloaded: "&aModule %module% reloaded successfully."
+  module-not-found: "&cModule not found: %module%"
+
+fly:
+  enabled: "&aFly mode enabled for %player%."
+  disabled: "&cFly mode disabled for %player%."
+  enabled-self: "&aFly mode enabled."
+  disabled-self: "&cFly mode disabled."
+  speed-set: "&aFly speed set to %speed% for %player%."
+  speed-set-self: "&aFly speed set to %speed%."
+  speed-invalid: "&cInvalid speed. Must be between 1 and 10."
+  
+god:
+  enabled: "&aGod mode enabled for %player%."
+  disabled: "&cGod mode disabled for %player%."
+  enabled-self: "&aGod mode enabled."
+  disabled-self: "&cGod mode disabled."
+
+help:
+  header: "&e========== &6WooOmni Help &e=========="
+  footer: "&e===================================="
+  fly: "&e/fly [player] &7- Toggle fly mode"
+  flyspeed: "&e/flyspeed <speed> [player] &7- Set fly speed (1-10)"
+  god: "&e/god [player] &7- Toggle god mode"
+  reload: "&e/wooomni reload [module] &7- Reload configuration"

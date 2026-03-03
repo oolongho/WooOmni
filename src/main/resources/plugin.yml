@@ -1,0 +1,45 @@
+name: WooOmni
+version: ${project.version}
+main: com.oolonghoo.woomni.WooOmni
+api-version: '1.21'
+author: oolongho
+description: A modular basic management plugin
+
+commands:
+  wooomni:
+    description: Main command
+    usage: /wooomni [args]
+    permission: wooomni.use
+    aliases: [wo, womni]
+  fly:
+    description: Toggle fly mode
+    usage: /fly [player]
+    permission: wooomni.fly
+  flyspeed:
+    description: Set fly speed
+    usage: /flyspeed <speed> [player]
+    permission: wooomni.flyspeed
+  god:
+    description: Toggle god mode
+    usage: /god [player]
+    permission: wooomni.god
+
+permissions:
+  wooomni.use:
+    default: true
+  wooomni.admin:
+    default: op
+  wooomni.reload:
+    default: op
+  wooomni.fly:
+    default: op
+  wooomni.fly.other:
+    default: op
+  wooomni.flyspeed:
+    default: op
+  wooomni.flyspeed.other:
+    default: op
+  wooomni.god:
+    default: op
+  wooomni.god.other:
+    default: op
