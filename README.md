@@ -65,40 +65,6 @@
 | `wooomni.god` | 无敌命令权限 | op |
 | `wooomni.god.other` | 对他人使用无敌权限 | op |
 
-## 配置文件
-
-### config.yml
-全局配置文件，包含 MySQL 连接设置、语言设置等。
-
-### modules.yml
-模块配置文件，控制各模块的开关和存储类型。
-
-```yaml
-modules:
-  fly:
-    enabled: true
-    storage-type: yaml  # yaml/sqlite/mysql
-  god:
-    enabled: true
-    storage-type: yaml
-```
-
-### lang/zh-CN.yml
-中文语言文件，可自定义所有消息内容。
-
-## 存储
-
-### YAML
-数据存储在 `data/fly.yml` 和 `data/god.yml` 文件中。
-
-### SQLite
-每个模块使用独立的 SQLite 数据库文件。
-
-### MySQL
-所有模块共享同一个 MySQL 连接池，使用表前缀区分。
-
----
-
 ❤️ 主包是开发新手，如果有做得不好的地方，欢迎指正。希望能和大家一起交流！
 
 ⭐ 觉得有用请给个 Star 爱你哟
