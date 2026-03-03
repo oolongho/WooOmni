@@ -23,8 +23,8 @@ public abstract class AbstractUserDataManager<T extends UserData> extends DataMa
             }
             
             @Override
-            protected void saveData(UserData data) {
-                AbstractUserDataManager.this.doSaveData((T) data);
+            protected void saveData(T data) {
+                AbstractUserDataManager.this.doSaveData(data);
             }
         };
     }
