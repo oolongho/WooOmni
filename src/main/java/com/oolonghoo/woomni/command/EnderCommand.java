@@ -79,7 +79,7 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
             OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetName);
             
             // 检查玩家是否曾经加入过服务器
-            if (!offlineTarget.hasPlayedBefore() && offlineTarget.getUniqueId() == null) {
+            if (!offlineTarget.hasPlayedBefore()) {
                 viewer.sendMessage(msg.getWithPrefix("general.player-not-found", "player", targetName));
                 return true;
             }
@@ -109,7 +109,7 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
         boolean canEdit = viewer.hasPermission(Perms.Inventory.ENDER_EDIT);
         
         // 创建并打开GUI
-        EnderSeeGUI gui = new EnderSeeGUI(plugin, settings, targetUUID, targetName, target, canEdit);
+        EnderSeeGUI gui = new EnderSeeGUI(settings, targetUUID, targetName, target, canEdit);
         viewer.openInventory(gui.getInventory());
         
         viewer.sendMessage(msg.getWithPrefix("ender.opened", "player", targetName));

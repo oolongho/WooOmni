@@ -4,7 +4,6 @@ import com.oolonghoo.woomni.command.MainCommand;
 import com.oolonghoo.woomni.config.ConfigLoader;
 import com.oolonghoo.woomni.config.MessageManager;
 import com.oolonghoo.woomni.database.StorageManager;
-import com.oolonghoo.woomni.listener.InvSeeListener;
 import com.oolonghoo.woomni.manager.ModuleManager;
 import com.oolonghoo.woomni.module.fly.FlyModule;
 import com.oolonghoo.woomni.module.god.GodModule;
@@ -23,7 +22,6 @@ public class WooOmni extends JavaPlugin {
     private StorageManager storageManager;
     private ModuleManager moduleManager;
     private AutoSaveTask autoSaveTask;
-    private InvSeeListener invSeeListener;
     private int autoSaveTaskId = -1;
     
     @Override
@@ -104,10 +102,6 @@ public class WooOmni extends JavaPlugin {
         
         getCommand("ender").setExecutor(mainCommand.getEnderCommand());
         getCommand("ender").setTabCompleter(mainCommand.getEnderCommand());
-        
-        // 注册InvSee监听器
-        invSeeListener = new InvSeeListener(this);
-        getServer().getPluginManager().registerEvents(invSeeListener, this);
     }
     
     private void startAutoSave() {

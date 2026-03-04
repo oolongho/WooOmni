@@ -26,7 +26,6 @@ import java.util.UUID;
  */
 public class EnderSeeGUI implements InventoryHolder {
     
-    private final WooOmni plugin;
     private final InventorySettings settings;
     private final Inventory inventory;
     private final UUID targetUUID;
@@ -45,9 +44,7 @@ public class EnderSeeGUI implements InventoryHolder {
     public static final int ENDER_CHEST_START = 18;
     public static final int ENDER_CHEST_END = 44;
     
-    public EnderSeeGUI(WooOmni plugin, InventorySettings settings, UUID targetUUID, 
-                       String targetName, Player onlineTarget, boolean canEdit) {
-        this.plugin = plugin;
+    public EnderSeeGUI(InventorySettings settings, UUID targetUUID, String targetName, Player onlineTarget, boolean canEdit) {
         this.settings = settings;
         this.targetUUID = targetUUID;
         this.targetName = targetName;
