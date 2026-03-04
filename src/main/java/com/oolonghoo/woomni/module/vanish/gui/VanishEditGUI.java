@@ -1,6 +1,5 @@
 package com.oolonghoo.woomni.module.vanish.gui;
 
-import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.module.vanish.VanishData;
 import com.oolonghoo.woomni.module.vanish.VanishDataManager;
 import com.oolonghoo.woomni.module.vanish.VanishHider;
@@ -29,7 +28,7 @@ public class VanishEditGUI implements InventoryHolder {
     private final UUID targetUUID;
     private final String targetName;
     
-    public VanishEditGUI(WooOmni plugin, VanishDataManager dataManager, VanishHider hider, 
+    public VanishEditGUI(VanishDataManager dataManager, VanishHider hider, 
                          VanishBossBar bossBar, Player target) {
         this.dataManager = dataManager;
         this.hider = hider;

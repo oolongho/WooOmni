@@ -75,7 +75,6 @@ public class VanishEditCommand implements CommandExecutor, TabCompleter {
         VanishModule vanishModule = (VanishModule) plugin.getModuleManager().getModule("vanish");
         
         VanishEditGUI gui = new VanishEditGUI(
-            plugin,
             vanishModule.getDataManager(),
             vanishModule.getHider(),
             vanishModule.getBossBar(),

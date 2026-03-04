@@ -24,7 +24,7 @@ public class VanishHider {
     // 可以看到隐身玩家的权限
     private static final String SEE_VANISH_PERMISSION = "wooomni.vanish.see";
     
-    public VanishHider(WooOmni plugin, VanishSettings settings) {
+    public VanishHider(WooOmni plugin) {
         this.plugin = plugin;
     }
     
