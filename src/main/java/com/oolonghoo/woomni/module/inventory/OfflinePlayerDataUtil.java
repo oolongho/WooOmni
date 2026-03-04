@@ -37,8 +37,8 @@ public class OfflinePlayerDataUtil {
     private static final int SLOT_OFFHAND = -106;
     
     // NMS 反射缓存
-    private static boolean nmsInitialized = false;
-    private static boolean nmsAvailable = false;
+    private static volatile boolean nmsInitialized = false;
+    private static volatile boolean nmsAvailable = false;
     private static String serverVersion;
     private static String nmsVersion;
     
