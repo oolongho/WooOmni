@@ -4,7 +4,6 @@ import com.oolonghoo.woomni.WooOmni;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
@@ -18,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VanishHider {
     
     private final WooOmni plugin;
-    private final VanishSettings settings;
     
     // 隐身玩家集合
     private final Set<UUID> vanishedPlayers = ConcurrentHashMap.newKeySet();
@@ -28,7 +26,6 @@ public class VanishHider {
     
     public VanishHider(WooOmni plugin, VanishSettings settings) {
         this.plugin = plugin;
-        this.settings = settings;
     }
     
     /**

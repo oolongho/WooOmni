@@ -20,14 +20,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class VanishBossBar {
     
-    private final WooOmni plugin;
     private final VanishSettings settings;
     
     // 玩家UUID -> BossBar映射
     private final Map<UUID, BossBar> playerBossBars = new ConcurrentHashMap<>();
     
     public VanishBossBar(WooOmni plugin, VanishSettings settings) {
-        this.plugin = plugin;
         this.settings = settings;
     }
     

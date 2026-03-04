@@ -17,13 +17,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class VanishEditGUI implements InventoryHolder {
     
-    private final WooOmni plugin;
     private final VanishDataManager dataManager;
     private final VanishHider hider;
     private final VanishBossBar bossBar;
@@ -31,11 +29,8 @@ public class VanishEditGUI implements InventoryHolder {
     private final UUID targetUUID;
     private final String targetName;
     
-    private static final int[] TOGGLE_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25};
-    
     public VanishEditGUI(WooOmni plugin, VanishDataManager dataManager, VanishHider hider, 
                          VanishBossBar bossBar, Player target) {
-        this.plugin = plugin;
         this.dataManager = dataManager;
         this.hider = hider;
         this.bossBar = bossBar;
