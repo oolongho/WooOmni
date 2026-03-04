@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.gradleup.shadow' version '8.3.5'
 }
 
 group = 'com.oolonghoo'
@@ -13,12 +14,14 @@ java {
 repositories {
     mavenCentral()
     maven { url = "https://repo.papermc.io/repository/maven-public/" }
+    maven { url = "https://repo.codemc.io/repository/maven-public/" }
 }
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
     compileOnly "com.zaxxer:HikariCP:5.1.0"
     compileOnly "com.google.guava:guava:33.0.0-jre"
+    // NBT-API 已移除，改用纯 NMS 反射实现
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -34,3 +37,13 @@ processResources {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+shadowJar {
+    // NBT-API relocate 已移除
+    
+    minimize()
+    
+    archiveClassifier.set('')
+}
+
+tasks.build.dependsOn(shadowJar)
