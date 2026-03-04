@@ -28,9 +28,14 @@ commands:
     permission: wooomni.god
   vanish:
     description: Toggle vanish mode
-    usage: /vanish [player|list]
+    usage: /vanish [player]
     permission: wooomni.vanish
     aliases: [v]
+  vanishlist:
+    description: List vanished players
+    usage: /vanishlist
+    permission: wooomni.vanish.list
+    aliases: [vlist, vl]
   vanishedit:
     description: Open vanish settings GUI
     usage: /vanishedit [player]

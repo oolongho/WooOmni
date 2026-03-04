@@ -31,13 +31,6 @@ vanish:
   disabled-self: "&c隐身模式已关闭。"
   list: "&e当前有 %count% 位玩家处于隐身状态: %players%"
   list-empty: "&e当前没有玩家处于隐身状态。"
-  help:
-    header: "&e========== &6Vanish 帮助 &e=========="
-    footer: "&e===================================="
-    toggle: "&e/vanish &7- 切换隐身模式"
-    others: "&e/vanish <玩家> &7- 切换其他玩家的隐身模式"
-    list: "&e/vanish list &7- 查看隐身玩家列表"
-    edit: "&e/vanishedit [玩家] &7- 打开隐身设置界面"
 
 help:
   header: "&e========== &6WooOmni 帮助 &e=========="
@@ -45,5 +38,7 @@ help:
   fly: "&e/fly [玩家] &7- 切换飞行模式"
   flyspeed: "&e/flyspeed <速度> [玩家] &7- 设置飞行速度 (1-10)"
   god: "&e/god [玩家] &7- 切换无敌模式"
-  vanish: "&e/vanish [玩家|list] &7- 切换隐身模式"
+  vanish: "&e/vanish [玩家] &7- 切换隐身模式"
+  vanishlist: "&e/vanishlist &7- 查看隐身玩家列表"
+  vanishedit: "&e/vanishedit [玩家] &7- 打开隐身设置界面"
   reload: "&e/wooomni reload [模块] &7- 重新加载配置"

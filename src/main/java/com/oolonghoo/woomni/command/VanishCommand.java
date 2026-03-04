@@ -14,10 +14,6 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Vanish命令处理器
- * 处理 /vanish 命令
- */
 public class VanishCommand implements CommandExecutor, TabCompleter {
     
     private final WooOmni plugin;
@@ -50,36 +46,22 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         
-        // 处理子命令
-        String subCommand = args[0].toLowerCase();
-        
-        switch (subCommand) {
-            case "list":
-                return handleList(sender);
-            case "help":
-                sendHelp(sender, label);
-                return true;
-            default:
-                // 尝试作为玩家名处理
-                if (!sender.hasPermission(Perms.Vanish.OTHERS)) {
-                    sender.sendMessage(msg.getWithPrefix("general.no-permission"));
-                    return true;
-                }
-                
-                Player target = Bukkit.getPlayer(args[0]);
-                if (target == null) {
-                    sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
-                    return true;
-                }
-                
-                toggleVanish(target, sender);
-                return true;
+        // 处理玩家名参数
+        if (!sender.hasPermission(Perms.Vanish.OTHERS)) {
+            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            return true;
         }
+        
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null) {
+            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+            return true;
+        }
+        
+        toggleVanish(target, sender);
+        return true;
     }
     
-    /**
-     * 切换玩家隐身状态
-     */
     private void toggleVanish(Player player, CommandSender sender) {
         VanishModule vanishModule = (VanishModule) plugin.getModuleManager().getModule("vanish");
         boolean newState = vanishModule.toggleVanish(player);
@@ -101,75 +83,15 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
         }
     }
     
-    /**
-     * 处理list子命令
-     */
-    private boolean handleList(CommandSender sender) {
-        if (!sender.hasPermission(Perms.Vanish.LIST)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
-            return true;
-        }
-        
-        VanishModule vanishModule = (VanishModule) plugin.getModuleManager().getModule("vanish");
-        List<String> vanishedPlayers = new ArrayList<>();
-        
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (vanishModule.isVanished(player)) {
-                vanishedPlayers.add(player.getName());
-            }
-        }
-        
-        if (vanishedPlayers.isEmpty()) {
-            sender.sendMessage(msg.getWithPrefix("vanish.list-empty"));
-        } else {
-            sender.sendMessage(msg.getWithPrefix("vanish.list", 
-                "count", String.valueOf(vanishedPlayers.size()),
-                "players", String.join(", ", vanishedPlayers)
-            ));
-        }
-        
-        return true;
-    }
-    
-    /**
-     * 发送帮助信息
-     */
-    private void sendHelp(CommandSender sender, String label) {
-        sender.sendMessage(msg.get("vanish.help.header"));
-        sender.sendMessage(msg.get("vanish.help.toggle", "command", label));
-        
-        if (sender.hasPermission(Perms.Vanish.OTHERS)) {
-            sender.sendMessage(msg.get("vanish.help.others", "command", label));
-        }
-        
-        if (sender.hasPermission(Perms.Vanish.LIST)) {
-            sender.sendMessage(msg.get("vanish.help.list", "command", label));
-        }
-        
-        sender.sendMessage(msg.get("vanish.help.footer"));
-    }
-    
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         
-        if (args.length == 1) {
+        if (args.length == 1 && sender.hasPermission(Perms.Vanish.OTHERS)) {
             String prefix = args[0].toLowerCase();
-            
-            // 子命令补全
-            if ("list".startsWith(prefix) && sender.hasPermission(Perms.Vanish.LIST)) {
-                completions.add("list");
-            }
-            if ("help".startsWith(prefix)) {
-                completions.add("help");
-            }
-            
-            // 玩家名补全
-            if (sender.hasPermission(Perms.Vanish.OTHERS)) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (player.getName().toLowerCase().startsWith(prefix)) {
-                        completions.add(player.getName());
-                    }
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (player.getName().toLowerCase().startsWith(prefix)) {
+                    completions.add(player.getName());
                 }
             }
         }

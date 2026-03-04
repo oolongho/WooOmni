@@ -129,18 +129,20 @@ public class VanishModule extends Module {
                 
                 if (data.isVanished() || data.isAutoVanishJoin()) {
                     plugin.getServer().getScheduler().runTask(plugin, () -> {
-                        if (player.isOnline()) {
+                        // 使用UUID重新获取玩家对象，确保状态同步
+                        Player onlinePlayer = Bukkit.getPlayer(uuid);
+                        if (onlinePlayer != null && onlinePlayer.isOnline()) {
                             // 恢复隐身状态
-                            hider.hidePlayer(player);
+                            hider.hidePlayer(onlinePlayer);
                             
                             // 显示BossBar
                             if (data.isBossbarEnabled()) {
-                                bossBar.showBossBar(player);
+                                bossBar.showBossBar(onlinePlayer);
                             }
                             
                             // 设置夜视
                             if (data.hasNightVision()) {
-                                player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                                onlinePlayer.addPotionEffect(new org.bukkit.potion.PotionEffect(
                                     org.bukkit.potion.PotionEffectType.NIGHT_VISION,
                                     Integer.MAX_VALUE, 0, false, false
                                 ));

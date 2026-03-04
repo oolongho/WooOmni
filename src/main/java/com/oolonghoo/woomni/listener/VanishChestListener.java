@@ -68,6 +68,10 @@ public class VanishChestListener implements Listener {
         player.setGameMode(GameMode.SPECTATOR);
         
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (!player.isOnline()) {
+                return;
+            }
+            
             if (block.getType() == Material.ENDER_CHEST) {
                 player.openInventory(player.getEnderChest());
             } else {

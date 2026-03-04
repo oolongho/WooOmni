@@ -89,6 +89,9 @@ public class WooOmni extends JavaPlugin {
         getCommand("vanish").setExecutor(mainCommand.getVanishCommand());
         getCommand("vanish").setTabCompleter(mainCommand.getVanishCommand());
         
+        getCommand("vanishlist").setExecutor(mainCommand.getVanishListCommand());
+        getCommand("vanishlist").setTabCompleter(mainCommand.getVanishListCommand());
+        
         getCommand("vanishedit").setExecutor(mainCommand.getVanishEditCommand());
         getCommand("vanishedit").setTabCompleter(mainCommand.getVanishEditCommand());
     }
