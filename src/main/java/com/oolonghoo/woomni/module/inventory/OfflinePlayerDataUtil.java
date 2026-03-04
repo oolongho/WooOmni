@@ -89,13 +89,19 @@ public class OfflinePlayerDataUtil {
     
     /**
      * 初始化 NMS 反射
+     * 使用双重检查锁定保证线程安全
      */
     private void initializeNMS() {
         if (nmsInitialized) {
             return;
         }
         
-        nmsInitialized = true;
+        synchronized (OfflinePlayerDataUtil.class) {
+            if (nmsInitialized) {
+                return;
+            }
+            
+            nmsInitialized = true;
         
         try {
             // 检测服务器版本
@@ -152,6 +158,7 @@ public class OfflinePlayerDataUtil {
             if (plugin.getConfig().getBoolean("debug", false)) {
                 plugin.getLogger().log(Level.WARNING, "详细错误信息:", e);
             }
+        }
         }
     }
     
