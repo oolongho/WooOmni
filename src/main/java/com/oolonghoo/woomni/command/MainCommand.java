@@ -18,6 +18,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     private final FlyCommand flyCommand;
     private final FlySpeedCommand flySpeedCommand;
     private final GodCommand godCommand;
+    private final VanishCommand vanishCommand;
+    private final VanishEditCommand vanishEditCommand;
     
     public MainCommand(WooOmni plugin) {
         this.plugin = plugin;
@@ -25,6 +27,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         this.flyCommand = new FlyCommand(plugin);
         this.flySpeedCommand = new FlySpeedCommand(plugin);
         this.godCommand = new GodCommand(plugin);
+        this.vanishCommand = new VanishCommand(plugin);
+        this.vanishEditCommand = new VanishEditCommand(plugin);
     }
     
     @Override
@@ -71,6 +75,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(msg.get("help.fly"));
         sender.sendMessage(msg.get("help.flyspeed"));
         sender.sendMessage(msg.get("help.god"));
+        sender.sendMessage(msg.get("help.vanish"));
         if (sender.hasPermission("wooomni.reload")) {
             sender.sendMessage(msg.get("help.reload"));
         }
@@ -115,5 +120,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     
     public GodCommand getGodCommand() {
         return godCommand;
+    }
+    
+    public VanishCommand getVanishCommand() {
+        return vanishCommand;
+    }
+    
+    public VanishEditCommand getVanishEditCommand() {
+        return vanishEditCommand;
     }
 }

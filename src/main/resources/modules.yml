@@ -1,4 +1,4 @@
-# WooOmni Module Configuration
+# WooOmni Module
 # Player data modules use database storage (sqlite/mysql)
 # Config modules always use YAML
 
@@ -7,4 +7,7 @@ modules:
     enabled: true
     
   god:
+    enabled: true
+    
+  vanish:
     enabled: true

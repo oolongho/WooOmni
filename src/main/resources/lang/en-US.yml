@@ -1,4 +1,4 @@
-prefix: "&8[&6WooOmni&8]&r"
+prefix: "&a[WooOmni] &r"
 
 general:
   no-permission: "&cYou don't have permission to do this."
@@ -24,10 +24,25 @@ god:
   enabled-self: "&aGod mode enabled."
   disabled-self: "&cGod mode disabled."
 
+vanish:
+  enabled: "&aVanish mode enabled for %player%."
+  disabled: "&cVanish mode disabled for %player%."
+  enabled-self: "&aVanish mode enabled."
+  disabled-self: "&cVanish mode disabled."
+  list: "&eThere are %count% players in vanish: %players%"
+  list-empty: "&eNo players are currently in vanish."
+  help:
+    header: "&e========== &6Vanish Help &e=========="
+    footer: "&e===================================="
+    toggle: "&e/vanish &7- Toggle vanish mode"
+    others: "&e/vanish <player> &7- Toggle vanish mode for another player"
+    list: "&e/vanish list &7- List vanished players"
+
 help:
   header: "&e========== &6WooOmni Help &e=========="
   footer: "&e===================================="
   fly: "&e/fly [player] &7- Toggle fly mode"
   flyspeed: "&e/flyspeed <speed> [player] &7- Set fly speed (1-10)"
   god: "&e/god [player] &7- Toggle god mode"
+  vanish: "&e/vanish [player|list] &7- Toggle vanish mode"
   reload: "&e/wooomni reload [module] &7- Reload configuration"

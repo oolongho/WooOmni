@@ -1,0 +1,26 @@
+# Vanish module configuration
+
+default-settings:
+  night-vision: true
+  pickup-items: false
+  can-take-damage: false
+  can-damage-others: true
+  physical-collision: false
+  silent-chest: true
+  prevent-mob-spawn: true
+  show-join-message: true
+  show-quit-message: true
+  bossbar-enabled: true
+
+bossbar:
+  color: WHITE
+  style: PROGRESS
+  title: "&c你正处于隐身状态"
+
+auto-vanish:
+  enabled: false
+  permission: wooomni.vanish.autojoin
+
+messages:
+  fake-messages: true
+  notify-admins: true

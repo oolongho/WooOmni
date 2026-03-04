@@ -26,6 +26,16 @@ commands:
     description: Toggle god mode
     usage: /god [player]
     permission: wooomni.god
+  vanish:
+    description: Toggle vanish mode
+    usage: /vanish [player|list]
+    permission: wooomni.vanish
+    aliases: [v]
+  vanishedit:
+    description: Open vanish settings GUI
+    usage: /vanishedit [player]
+    permission: wooomni.vanish.edit
+    aliases: [ve, vedit]
 
 permissions:
   wooomni.use:
@@ -43,4 +53,18 @@ permissions:
   wooomni.god:
     default: op
   wooomni.god.other:
+    default: op
+  wooomni.vanish:
+    default: op
+  wooomni.vanish.other:
+    default: op
+  wooomni.vanish.list:
+    default: op
+  wooomni.vanish.see:
+    default: op
+  wooomni.vanish.autojoin:
+    default: op
+  wooomni.vanish.edit:
+    default: op
+  wooomni.vanish.edit.other:
     default: op
