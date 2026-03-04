@@ -4,6 +4,9 @@ main: com.oolonghoo.woomni.WooOmni
 api-version: '1.21'
 author: oolongho
 description: A modular basic management plugin
+libraries:
+  - com.zaxxer:HikariCP:5.1.0
+  - com.google.guava:guava:33.0.0-jre
 
 commands:
   wooomni:
@@ -36,8 +39,6 @@ permissions:
   wooomni.fly.other:
     default: op
   wooomni.flyspeed:
-    default: op
-  wooomni.flyspeed.other:
     default: op
   wooomni.god:
     default: op

@@ -17,8 +17,8 @@ repositories {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
-    implementation "com.zaxxer:HikariCP:5.1.0"
-    implementation "com.google.guava:guava:33.0.0-jre"
+    compileOnly "com.zaxxer:HikariCP:5.1.0"
+    compileOnly "com.google.guava:guava:33.0.0-jre"
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -32,8 +32,5 @@ processResources {
 }
 
 jar {
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
