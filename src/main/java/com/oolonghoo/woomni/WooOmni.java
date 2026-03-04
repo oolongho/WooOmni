@@ -28,12 +28,14 @@ public class WooOmni extends JavaPlugin {
         
         configLoader = new ConfigLoader(this, "config.yml");
         configLoader.initialize();
+        getLogger().info("配置加载完成");
         
         modulesLoader = new ConfigLoader(this, "modules.yml");
         modulesLoader.initialize();
         
         messageManager = new MessageManager(this);
         messageManager.initialize();
+        getLogger().info("语言文件加载完成");
         
         storageManager = new StorageManager(this);
         storageManager.initialize();
@@ -45,7 +47,7 @@ public class WooOmni extends JavaPlugin {
         registerCommands();
         startAutoSave();
         
-        getLogger().info("WooOmni v" + getPluginMeta().getVersion() + " enabled!");
+        getLogger().info("WooOmni v" + getPluginMeta().getVersion() + " 已启用!");
     }
     
     @Override
@@ -60,7 +62,7 @@ public class WooOmni extends JavaPlugin {
             storageManager.shutdown();
         }
         
-        getLogger().info("WooOmni disabled!");
+        getLogger().info("WooOmni 已禁用!");
     }
     
     private void registerModules() {
@@ -90,7 +92,7 @@ public class WooOmni extends JavaPlugin {
             autoSaveTaskId = getServer().getScheduler().runTaskTimerAsynchronously(
                 this, autoSaveTask, interval * 20L, interval * 20L
             ).getTaskId();
-            getLogger().info("Auto-save task started (interval: " + interval + "s)");
+            getLogger().info("自动保存任务已启动 (间隔: " + interval + "秒)");
         }
     }
     

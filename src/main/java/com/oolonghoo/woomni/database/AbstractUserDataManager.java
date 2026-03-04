@@ -38,9 +38,8 @@ public abstract class AbstractUserDataManager<T extends UserData> extends DataMa
         try (Connection conn = getConnection()) {
             String sql = buildCreateTableSQL();
             conn.createStatement().execute(sql);
-            plugin.getLogger().info(getDataTypeName() + " data table created/verified");
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to create " + getDataTypeName() + " data table: " + e.getMessage());
+            plugin.getLogger().severe("[" + getDataTypeName() + "] 数据表创建失败: " + e.getMessage());
         }
     }
     
@@ -61,7 +60,7 @@ public abstract class AbstractUserDataManager<T extends UserData> extends DataMa
                 }
             }
         } catch (SQLException e) {
-            plugin.getLogger().warning("Failed to load " + getDataTypeName() + " data for " + uuid + ": " + e.getMessage());
+            plugin.getLogger().warning("[" + getDataTypeName() + "] 加载玩家数据失败 " + uuid + ": " + e.getMessage());
         }
         
         data.setDirty(false);
@@ -83,7 +82,7 @@ public abstract class AbstractUserDataManager<T extends UserData> extends DataMa
                     stmt.executeUpdate();
                 }
             } catch (SQLException e) {
-                plugin.getLogger().warning("Failed to save " + getDataTypeName() + " data for " + data.getUuid() + ": " + e.getMessage());
+                plugin.getLogger().warning("[" + getDataTypeName() + "] 保存玩家数据失败 " + data.getUuid() + ": " + e.getMessage());
             }
         });
         

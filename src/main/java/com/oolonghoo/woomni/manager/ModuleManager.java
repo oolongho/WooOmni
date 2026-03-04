@@ -4,8 +4,10 @@ import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.module.Module;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -25,6 +27,7 @@ public class ModuleManager {
     
     public void loadEnabledModules() {
         FileConfiguration modulesConfig = plugin.getModulesLoader().getConfig();
+        List<String> enabledModules = new ArrayList<>();
         
         for (Map.Entry<String, Supplier<Module>> entry : moduleFactories.entrySet()) {
             String moduleName = entry.getKey();
@@ -32,7 +35,16 @@ public class ModuleManager {
             
             if (enabled) {
                 loadModule(moduleName);
+                enabledModules.add(moduleName);
             }
+        }
+        
+        if (!enabledModules.isEmpty()) {
+            StringBuilder sb = new StringBuilder("已启用模块 ");
+            for (String moduleName : enabledModules) {
+                sb.append("[").append(moduleName).append("] ");
+            }
+            plugin.getLogger().info(sb.toString().trim());
         }
     }
     
@@ -40,20 +52,19 @@ public class ModuleManager {
         name = name.toLowerCase();
         
         if (loadedModules.containsKey(name)) {
-            plugin.getLogger().warning("Module " + name + " is already loaded");
+            plugin.getLogger().warning("模块 " + name + " 已经加载");
             return;
         }
         
         Supplier<Module> factory = moduleFactories.get(name);
         if (factory == null) {
-            plugin.getLogger().warning("Unknown module: " + name);
+            plugin.getLogger().warning("未知模块: " + name);
             return;
         }
         
         Module module = factory.get();
         module.onEnable();
         loadedModules.put(name, module);
-        plugin.getLogger().info("Module " + name + " enabled");
     }
     
     public void unloadModule(String name) {
@@ -62,7 +73,6 @@ public class ModuleManager {
         Module module = loadedModules.remove(name);
         if (module != null) {
             module.onDisable();
-            plugin.getLogger().info("Module " + name + " disabled");
         }
     }
     
@@ -88,11 +98,19 @@ public class ModuleManager {
     }
     
     public void disableAllModules() {
-        for (Map.Entry<String, Module> entry : loadedModules.entrySet()) {
-            entry.getValue().onDisable();
-            plugin.getLogger().info("Module " + entry.getKey() + " disabled");
+        if (!loadedModules.isEmpty()) {
+            List<String> disabledModules = new ArrayList<>(loadedModules.keySet());
+            for (Map.Entry<String, Module> entry : loadedModules.entrySet()) {
+                entry.getValue().onDisable();
+            }
+            loadedModules.clear();
+            
+            StringBuilder sb = new StringBuilder("已禁用模块 ");
+            for (String moduleName : disabledModules) {
+                sb.append("[").append(moduleName).append("] ");
+            }
+            plugin.getLogger().info(sb.toString().trim());
         }
-        loadedModules.clear();
     }
     
     public Module getModule(String name) {

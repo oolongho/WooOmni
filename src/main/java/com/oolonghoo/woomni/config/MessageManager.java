@@ -44,7 +44,7 @@ public class MessageManager {
                 try {
                     langFile.createNewFile();
                 } catch (IOException e) {
-                    plugin.getLogger().severe("Failed to create language file: " + language);
+                    plugin.getLogger().severe("创建语言文件失败: " + language);
                 }
             }
         }

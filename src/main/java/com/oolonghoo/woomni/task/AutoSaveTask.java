@@ -18,7 +18,7 @@ public class AutoSaveTask implements Runnable {
         }
         
         if (plugin.getConfig().getBoolean("settings.debug", false)) {
-            plugin.getLogger().info("Auto-saved all module data");
+            plugin.getLogger().info("已自动保存所有模块数据");
         }
     }
 }

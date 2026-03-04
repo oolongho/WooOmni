@@ -20,8 +20,6 @@ public class FlyModule extends Module {
         
         listener = new FlyListener(plugin, dataManager);
         plugin.getServer().getPluginManager().registerEvents(listener, plugin);
-        
-        log("Fly module enabled");
     }
     
     @Override
@@ -33,8 +31,6 @@ public class FlyModule extends Module {
         if (listener != null) {
             listener.unregister();
         }
-        
-        log("Fly module disabled");
     }
     
     @Override
@@ -42,7 +38,6 @@ public class FlyModule extends Module {
         if (dataManager != null) {
             dataManager.saveAll();
         }
-        log("Fly module reloaded");
     }
     
     @Override

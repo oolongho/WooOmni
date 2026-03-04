@@ -62,7 +62,7 @@ public class StorageManager {
         config.addDataSourceProperty("rewriteBatchedStatements", "true");
         
         dataSource = new HikariDataSource(config);
-        plugin.getLogger().info("MySQL connection pool initialized");
+        plugin.getLogger().info("数据库连接成功 (MySQL)");
     }
     
     private void initSQLite() {
@@ -78,7 +78,7 @@ public class StorageManager {
         config.setMinimumIdle(1);
         
         dataSource = new HikariDataSource(config);
-        plugin.getLogger().info("SQLite connection initialized");
+        plugin.getLogger().info("数据库连接成功 (SQLite)");
     }
     
     public Connection getConnection() throws SQLException {
@@ -103,7 +103,7 @@ public class StorageManager {
     public void shutdown() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
-            plugin.getLogger().info("Storage connection pool closed");
+            plugin.getLogger().info("数据库连接池已关闭");
         }
     }
     

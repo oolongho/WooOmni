@@ -35,12 +35,12 @@ public class ConfigLoader {
         
         if (!configFile.exists()) {
             if (isCustomFile) {
-                plugin.getLogger().warning("Config file not found: " + fileName);
+                plugin.getLogger().warning("配置文件未找到: " + fileName);
                 try {
                     configFile.getParentFile().mkdirs();
                     configFile.createNewFile();
                 } catch (IOException e) {
-                    plugin.getLogger().severe("Failed to create config file: " + fileName);
+                    plugin.getLogger().severe("创建配置文件失败: " + fileName);
                 }
             } else {
                 plugin.saveResource(fileName, false);
@@ -76,7 +76,7 @@ public class ConfigLoader {
         try {
             config.save(configFile);
         } catch (IOException e) {
-            plugin.getLogger().severe("Failed to save config file: " + fileName);
+            plugin.getLogger().severe("保存配置文件失败: " + fileName);
             e.printStackTrace();
         }
     }

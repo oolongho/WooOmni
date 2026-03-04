@@ -20,8 +20,6 @@ public class GodModule extends Module {
         
         listener = new GodListener(plugin, dataManager);
         plugin.getServer().getPluginManager().registerEvents(listener, plugin);
-        
-        log("God module enabled");
     }
     
     @Override
@@ -33,8 +31,6 @@ public class GodModule extends Module {
         if (listener != null) {
             listener.unregister();
         }
-        
-        log("God module disabled");
     }
     
     @Override
@@ -42,7 +38,6 @@ public class GodModule extends Module {
         if (dataManager != null) {
             dataManager.saveAll();
         }
-        log("God module reloaded");
     }
     
     @Override
