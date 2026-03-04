@@ -2,6 +2,7 @@ package com.oolonghoo.woomni.listener;
 
 import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.config.MessageManager;
+import com.oolonghoo.woomni.module.inventory.OfflinePlayerDataUtil;
 import com.oolonghoo.woomni.module.inventory.gui.InvSeeGUI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -30,13 +31,15 @@ public class InvSeeListener implements Listener {
     
     private final WooOmni plugin;
     private final MessageManager msg;
+    private final OfflinePlayerDataUtil dataUtil;
     
     // 记录打开的GUI
     private final Map<UUID, InvSeeGUI> openGUIs = new HashMap<>();
     
-    public InvSeeListener(WooOmni plugin) {
+    public InvSeeListener(WooOmni plugin, OfflinePlayerDataUtil dataUtil) {
         this.plugin = plugin;
         this.msg = plugin.getMessageManager();
+        this.dataUtil = dataUtil;
     }
     
     /**
@@ -368,24 +371,67 @@ public class InvSeeListener implements Listener {
     private void syncToTarget(Player target, InvSeeGUI gui) {
         Inventory guiInventory = gui.getInventory();
         
-        // 同步背包物品
-        for (int guiSlot = InvSeeGUI.SLOT_INVENTORY_START; guiSlot < InvSeeGUI.GUI_SIZE; guiSlot++) {
-            int playerSlot = InvSeeGUI.guiSlotToPlayerSlot(guiSlot);
-            if (playerSlot >= 0) {
-                ItemStack item = guiInventory.getItem(guiSlot);
-                target.getInventory().setItem(playerSlot, item);
+        if (target != null) {
+            // 在线玩家：直接同步
+            // 同步背包物品
+            for (int guiSlot = InvSeeGUI.SLOT_INVENTORY_START; guiSlot < InvSeeGUI.GUI_SIZE; guiSlot++) {
+                int playerSlot = InvSeeGUI.guiSlotToPlayerSlot(guiSlot);
+                if (playerSlot >= 0) {
+                    ItemStack item = guiInventory.getItem(guiSlot);
+                    target.getInventory().setItem(playerSlot, item);
+                }
             }
+            
+            // 同步装备
+            int[] armorSlots = {InvSeeGUI.SLOT_HELMET, InvSeeGUI.SLOT_CHESTPLATE, 
+                               InvSeeGUI.SLOT_LEGGINGS, InvSeeGUI.SLOT_BOOTS, InvSeeGUI.SLOT_OFFHAND};
+            for (int slot : armorSlots) {
+                int playerSlot = InvSeeGUI.armorSlotToPlayerSlot(slot);
+                if (playerSlot >= 0) {
+                    ItemStack item = guiInventory.getItem(slot);
+                    target.getInventory().setItem(playerSlot, item);
+                }
+            }
+        } else {
+            // 离线玩家：保存到文件
+            saveOfflineInventory(gui);
         }
-        
-        // 同步装备
-        int[] armorSlots = {InvSeeGUI.SLOT_HELMET, InvSeeGUI.SLOT_CHESTPLATE, 
-                           InvSeeGUI.SLOT_LEGGINGS, InvSeeGUI.SLOT_BOOTS, InvSeeGUI.SLOT_OFFHAND};
-        for (int slot : armorSlots) {
-            int playerSlot = InvSeeGUI.armorSlotToPlayerSlot(slot);
-            if (playerSlot >= 0) {
-                ItemStack item = guiInventory.getItem(slot);
-                target.getInventory().setItem(playerSlot, item);
+    }
+    
+    /**
+     * 保存离线玩家背包数据
+     */
+    private void saveOfflineInventory(InvSeeGUI gui) {
+        if (!gui.isOnline() && dataUtil != null) {
+            Inventory guiInventory = gui.getInventory();
+            ItemStack[] contents = new ItemStack[41];
+            
+            // 收集背包物品 (0-35)
+            for (int guiSlot = InvSeeGUI.SLOT_INVENTORY_START; guiSlot < InvSeeGUI.GUI_SIZE; guiSlot++) {
+                int playerSlot = InvSeeGUI.guiSlotToPlayerSlot(guiSlot);
+                if (playerSlot >= 0 && playerSlot < 36) {
+                    contents[playerSlot] = guiInventory.getItem(guiSlot);
+                }
             }
+            
+            // 收集装备 (36-39)
+            contents[36] = guiInventory.getItem(InvSeeGUI.SLOT_BOOTS);
+            contents[37] = guiInventory.getItem(InvSeeGUI.SLOT_LEGGINGS);
+            contents[38] = guiInventory.getItem(InvSeeGUI.SLOT_CHESTPLATE);
+            contents[39] = guiInventory.getItem(InvSeeGUI.SLOT_HELMET);
+            
+            // 副手 (40)
+            contents[40] = guiInventory.getItem(InvSeeGUI.SLOT_OFFHAND);
+            
+            // 异步保存
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                boolean success = dataUtil.saveOfflineInventory(gui.getTargetUUID(), contents);
+                if (success) {
+                    plugin.getLogger().info("已保存离线玩家 " + gui.getTargetName() + " 的背包数据");
+                } else {
+                    plugin.getLogger().warning("保存离线玩家 " + gui.getTargetName() + " 的背包数据失败");
+                }
+            });
         }
     }
     
@@ -394,16 +440,15 @@ public class InvSeeListener implements Listener {
      */
     private void refreshGUI(Player viewer, InvSeeGUI oldGui) {
         Player target = Bukkit.getPlayer(oldGui.getTargetUUID());
-        if (target == null) {
-            return;
-        }
+        boolean isOnline = target != null;
         
         // 创建新的GUI实例
         InvSeeGUI newGui = new InvSeeGUI(
             oldGui.getSettings(),
+            oldGui.getDataUtil(),
             oldGui.getTargetUUID(),
             oldGui.getTargetName(),
-            true,
+            isOnline,
             oldGui.canEdit()
         );
         
@@ -440,9 +485,7 @@ public class InvSeeListener implements Listener {
         
         // 同步到目标玩家
         Player target = Bukkit.getPlayer(gui.getTargetUUID());
-        if (target != null) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> syncToTarget(target, gui), 1L);
-        }
+        Bukkit.getScheduler().runTaskLater(plugin, () -> syncToTarget(target, gui), 1L);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -452,7 +495,12 @@ public class InvSeeListener implements Listener {
         }
         
         Player player = (Player) event.getPlayer();
-        openGUIs.remove(player.getUniqueId());
+        InvSeeGUI gui = openGUIs.remove(player.getUniqueId());
+        
+        // 如果是离线玩家GUI，在关闭时保存数据
+        if (gui != null && !gui.isOnline() && gui.canEdit()) {
+            saveOfflineInventory(gui);
+        }
     }
     
     /**

@@ -2,6 +2,7 @@ package com.oolonghoo.woomni.module.inventory.gui;
 
 import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.module.inventory.InventorySettings;
+import com.oolonghoo.woomni.module.inventory.OfflinePlayerDataUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -27,11 +28,16 @@ import java.util.UUID;
 public class EnderSeeGUI implements InventoryHolder {
     
     private final InventorySettings settings;
+    private final OfflinePlayerDataUtil dataUtil;
     private final Inventory inventory;
     private final UUID targetUUID;
     private final String targetName;
     private final Player onlineTarget;
     private final boolean canEdit;
+    private final boolean isOnline;
+    
+    // 末影箱内容（用于离线玩家）
+    private ItemStack[] enderChestContents;
     
     // 按钮槽位常量
     public static final int SLOT_COPY = 0;
@@ -44,17 +50,22 @@ public class EnderSeeGUI implements InventoryHolder {
     public static final int ENDER_CHEST_START = 18;
     public static final int ENDER_CHEST_END = 44;
     
-    public EnderSeeGUI(InventorySettings settings, UUID targetUUID, String targetName, Player onlineTarget, boolean canEdit) {
+    public EnderSeeGUI(InventorySettings settings, OfflinePlayerDataUtil dataUtil, UUID targetUUID, String targetName, Player onlineTarget, boolean canEdit) {
         this.settings = settings;
+        this.dataUtil = dataUtil;
         this.targetUUID = targetUUID;
         this.targetName = targetName;
         this.onlineTarget = onlineTarget;
         this.canEdit = canEdit;
+        this.isOnline = onlineTarget != null;
         
         // 创建5行GUI
         String title = "末影箱 - " + targetName;
         if (!canEdit) {
             title += " (仅查看)";
+        }
+        if (!isOnline) {
+            title = "末影箱 (离线) - " + targetName;
         }
         this.inventory = Bukkit.createInventory(this, 45, Component.text(title));
         
@@ -139,6 +150,7 @@ public class EnderSeeGUI implements InventoryHolder {
         if (onlineTarget != null) {
             // 在线玩家 - 直接获取末影箱内容
             ItemStack[] enderContents = onlineTarget.getEnderChest().getContents();
+            enderChestContents = enderContents;
             for (int i = 0; i < 27; i++) {
                 if (enderContents[i] != null) {
                     inventory.setItem(ENDER_CHEST_START + i, enderContents[i].clone());
@@ -154,18 +166,21 @@ public class EnderSeeGUI implements InventoryHolder {
      * 加载离线玩家的末影箱数据
      */
     private void loadOfflineEnderChest() {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(targetUUID);
-        if (offlinePlayer.getPlayer() != null) {
-            // 玩家实际上在线（可能刚刚登录）
-            ItemStack[] enderContents = offlinePlayer.getPlayer().getEnderChest().getContents();
-            for (int i = 0; i < 27; i++) {
-                if (enderContents[i] != null) {
-                    inventory.setItem(ENDER_CHEST_START + i, enderContents[i].clone());
+        if (dataUtil != null && dataUtil.hasPlayerData(targetUUID)) {
+            // 使用NMS加载离线玩家末影箱数据
+            enderChestContents = dataUtil.loadOfflineEnderChest(targetUUID);
+            
+            if (enderChestContents != null) {
+                for (int i = 0; i < 27; i++) {
+                    if (i < enderChestContents.length && enderChestContents[i] != null) {
+                        inventory.setItem(ENDER_CHEST_START + i, enderChestContents[i].clone());
+                    }
                 }
             }
+        } else {
+            // 没有数据文件，使用空数组
+            enderChestContents = new ItemStack[27];
         }
-        // 注意：完整的离线玩家数据加载需要读取世界数据文件
-        // 这里暂时只处理在线玩家，离线玩家数据加载可以在后续版本中实现
     }
     
     /**
@@ -319,16 +334,28 @@ public class EnderSeeGUI implements InventoryHolder {
      * 在编辑操作后调用
      */
     public void syncToTarget() {
-        if (onlineTarget == null) {
-            return;
-        }
-        
         ItemStack[] contents = new ItemStack[27];
         for (int i = 0; i < 27; i++) {
             contents[i] = inventory.getItem(ENDER_CHEST_START + i);
         }
         
-        onlineTarget.getEnderChest().setContents(contents);
+        if (onlineTarget != null) {
+            // 在线玩家：直接设置
+            onlineTarget.getEnderChest().setContents(contents);
+        } else {
+            // 离线玩家：保存到文件
+            saveOfflineData(contents);
+        }
+    }
+    
+    /**
+     * 保存离线玩家数据
+     */
+    public boolean saveOfflineData(ItemStack[] contents) {
+        if (dataUtil != null) {
+            return dataUtil.saveOfflineEnderChest(targetUUID, contents);
+        }
+        return false;
     }
     
     /**
@@ -363,6 +390,14 @@ public class EnderSeeGUI implements InventoryHolder {
     
     public boolean canEdit() {
         return canEdit;
+    }
+    
+    public boolean isOnline() {
+        return isOnline;
+    }
+    
+    public OfflinePlayerDataUtil getDataUtil() {
+        return dataUtil;
     }
     
     /**

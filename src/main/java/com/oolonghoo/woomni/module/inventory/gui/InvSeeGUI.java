@@ -1,6 +1,7 @@
 package com.oolonghoo.woomni.module.inventory.gui;
 
 import com.oolonghoo.woomni.module.inventory.InventorySettings;
+import com.oolonghoo.woomni.module.inventory.OfflinePlayerDataUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -42,6 +43,7 @@ public class InvSeeGUI implements InventoryHolder {
     
     private final Inventory inventory;
     private final InventorySettings settings;
+    private final OfflinePlayerDataUtil dataUtil;
     private final UUID targetUUID;
     private final String targetName;
     private final boolean isOnline;
@@ -55,14 +57,16 @@ public class InvSeeGUI implements InventoryHolder {
     /**
      * 构造函数
      * @param settings 设置管理器
+     * @param dataUtil 离线玩家数据工具
      * @param targetUUID 目标玩家UUID
      * @param targetName 目标玩家名称
      * @param isOnline 目标是否在线
      * @param canEdit 是否可编辑
      */
-    public InvSeeGUI(InventorySettings settings, UUID targetUUID, String targetName, 
+    public InvSeeGUI(InventorySettings settings, OfflinePlayerDataUtil dataUtil, UUID targetUUID, String targetName, 
                      boolean isOnline, boolean canEdit) {
         this.settings = settings;
+        this.dataUtil = dataUtil;
         this.targetUUID = targetUUID;
         this.targetName = targetName;
         this.isOnline = isOnline;
@@ -96,15 +100,40 @@ public class InvSeeGUI implements InventoryHolder {
             };
             offHandItem = onlinePlayer.getInventory().getItemInOffHand();
         } else {
-            // 离线玩家：从数据文件加载（简化处理，实际需要从NBT文件读取）
-            // 这里创建空数组，实际实现需要读取玩家数据文件
-            inventoryContents = new ItemStack[41];
-            armorContents = new ItemStack[4];
-            offHandItem = null;
-            
-            // TODO: 实现离线玩家数据加载
-            // 可以使用 Bukkit.getWorlds().get(0).getWorldFolder() 获取世界文件夹
-            // 然后读取 playerdata/<uuid>.dat 文件
+            // 离线玩家：从数据文件加载
+            if (dataUtil != null && dataUtil.hasPlayerData(targetUUID)) {
+                // 使用NMS加载离线玩家数据
+                ItemStack[] loadedContents = dataUtil.loadOfflineInventory(targetUUID);
+                
+                // 解析加载的数据
+                // loadedContents 结构: 0-35背包, 36靴子, 37护腿, 38胸甲, 39头盔, 40副手
+                inventoryContents = new ItemStack[41];
+                armorContents = new ItemStack[4];
+                
+                if (loadedContents != null && loadedContents.length >= 41) {
+                    // 复制背包内容 (0-35)
+                    System.arraycopy(loadedContents, 0, inventoryContents, 0, 36);
+                    
+                    // 复制装备 (注意顺序：boots, leggings, chestplate, helmet)
+                    armorContents[0] = loadedContents[36]; // boots
+                    armorContents[1] = loadedContents[37]; // leggings
+                    armorContents[2] = loadedContents[38]; // chestplate
+                    armorContents[3] = loadedContents[39]; // helmet
+                    
+                    // 副手
+                    offHandItem = loadedContents[40];
+                } else {
+                    // 加载失败，使用空数组
+                    inventoryContents = new ItemStack[41];
+                    armorContents = new ItemStack[4];
+                    offHandItem = null;
+                }
+            } else {
+                // 没有数据文件，使用空数组
+                inventoryContents = new ItemStack[41];
+                armorContents = new ItemStack[4];
+                offHandItem = null;
+            }
         }
     }
     
@@ -379,5 +408,9 @@ public class InvSeeGUI implements InventoryHolder {
     
     public InventorySettings getSettings() {
         return settings;
+    }
+    
+    public OfflinePlayerDataUtil getDataUtil() {
+        return dataUtil;
     }
 }

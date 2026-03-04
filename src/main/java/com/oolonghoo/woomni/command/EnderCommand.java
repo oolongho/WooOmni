@@ -109,7 +109,7 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
         boolean canEdit = viewer.hasPermission(Perms.Inventory.ENDER_EDIT);
         
         // 创建并打开GUI
-        EnderSeeGUI gui = new EnderSeeGUI(settings, targetUUID, targetName, target, canEdit);
+        EnderSeeGUI gui = new EnderSeeGUI(settings, inventoryModule.getDataUtil(), targetUUID, targetName, target, canEdit);
         viewer.openInventory(gui.getInventory());
         
         viewer.sendMessage(msg.getWithPrefix("ender.opened", "player", targetName));

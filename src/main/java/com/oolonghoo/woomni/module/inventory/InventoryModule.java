@@ -12,6 +12,7 @@ import com.oolonghoo.woomni.module.Module;
 public class InventoryModule extends Module {
     
     private InventorySettings settings;
+    private OfflinePlayerDataUtil dataUtil;
     private InvSeeListener invSeeListener;
     private EnderSeeListener enderSeeListener;
     
@@ -26,9 +27,13 @@ public class InventoryModule extends Module {
         settings.initialize();
         log("配置加载完成");
         
+        // 初始化离线玩家数据工具
+        dataUtil = new OfflinePlayerDataUtil(plugin);
+        log("离线玩家数据工具初始化完成");
+        
         // 注册监听器
-        invSeeListener = new InvSeeListener(plugin);
-        enderSeeListener = new EnderSeeListener(plugin);
+        invSeeListener = new InvSeeListener(plugin, dataUtil);
+        enderSeeListener = new EnderSeeListener(plugin, dataUtil);
         plugin.getServer().getPluginManager().registerEvents(invSeeListener, plugin);
         plugin.getServer().getPluginManager().registerEvents(enderSeeListener, plugin);
         log("监听器注册完成");
@@ -77,6 +82,14 @@ public class InventoryModule extends Module {
      */
     public InventorySettings getSettings() {
         return settings;
+    }
+    
+    /**
+     * 获取离线玩家数据工具
+     * @return 离线玩家数据工具
+     */
+    public OfflinePlayerDataUtil getDataUtil() {
+        return dataUtil;
     }
     
     /**

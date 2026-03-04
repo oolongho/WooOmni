@@ -2,6 +2,7 @@ package com.oolonghoo.woomni.listener;
 
 import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.config.MessageManager;
+import com.oolonghoo.woomni.module.inventory.OfflinePlayerDataUtil;
 import com.oolonghoo.woomni.module.inventory.gui.EnderSeeGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -28,13 +29,15 @@ public class EnderSeeListener implements Listener {
     
     private final WooOmni plugin;
     private final MessageManager msg;
+    private final OfflinePlayerDataUtil dataUtil;
     
     // 记录打开的GUI
     private final Map<UUID, EnderSeeGUI> openGUIs = new HashMap<>();
     
-    public EnderSeeListener(WooOmni plugin) {
+    public EnderSeeListener(WooOmni plugin, OfflinePlayerDataUtil dataUtil) {
         this.plugin = plugin;
         this.msg = plugin.getMessageManager();
+        this.dataUtil = dataUtil;
     }
     
     /**
@@ -222,7 +225,37 @@ public class EnderSeeListener implements Listener {
         }
         
         Player player = (Player) event.getPlayer();
-        openGUIs.remove(player.getUniqueId());
+        EnderSeeGUI gui = openGUIs.remove(player.getUniqueId());
+        
+        // 如果是离线玩家GUI，在关闭时保存数据
+        if (gui != null && !gui.isOnline() && gui.canEdit()) {
+            saveOfflineEnderChest(gui);
+        }
+    }
+    
+    /**
+     * 保存离线玩家末影箱数据
+     */
+    private void saveOfflineEnderChest(EnderSeeGUI gui) {
+        if (!gui.isOnline() && dataUtil != null) {
+            Inventory guiInventory = gui.getInventory();
+            ItemStack[] contents = new ItemStack[27];
+            
+            // 收集末影箱物品
+            for (int i = 0; i < 27; i++) {
+                contents[i] = guiInventory.getItem(EnderSeeGUI.ENDER_CHEST_START + i);
+            }
+            
+            // 异步保存
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                boolean success = gui.saveOfflineData(contents);
+                if (success) {
+                    plugin.getLogger().info("已保存离线玩家 " + gui.getTargetName() + " 的末影箱数据");
+                } else {
+                    plugin.getLogger().warning("保存离线玩家 " + gui.getTargetName() + " 的末影箱数据失败");
+                }
+            });
+        }
     }
     
     /**

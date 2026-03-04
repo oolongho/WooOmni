@@ -84,6 +84,7 @@ public class InvCommand implements CommandExecutor, TabCompleter {
         boolean canEdit = viewer.hasPermission(Perms.Inventory.INV_EDIT);
         InvSeeGUI gui = new InvSeeGUI(
             inventoryModule.getSettings(),
+            inventoryModule.getDataUtil(),
             target.getUniqueId(),
             targetName,
             target.isOnline(),
