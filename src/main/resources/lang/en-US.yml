@@ -32,6 +32,44 @@ vanish:
   list: "&eThere are %count% players in vanish: %players%"
   list-empty: "&eNo players are currently in vanish."
 
+ender:
+  usage: "&eUsage: /ender <player>"
+  opened: "&aOpened %player%'s ender chest."
+  exempt: "&cPlayer %player% has exempt permission, cannot view their ender chest."
+  no-edit: "&cYou don't have edit permission."
+
+inv:
+  usage: "&eUsage: /inv <player>"
+  exempt: "&cPlayer %player% has exempt permission, cannot view their inventory."
+  no-edit: "&cYou don't have edit permission."
+  player-offline: "&cPlayer %player% is offline."
+  copied: "&aCopied %player%'s inventory contents."
+  cleared: "&aCleared %player%'s inventory."
+  feature-not-implemented: "&eThis feature is not yet implemented, stay tuned!"
+
+inventory:
+  player-not-found: "&cPlayer not found: %player%"
+  exempt: "&cPlayer %player% has exempt permission, cannot view their inventory."
+  inv-opened: "&aViewing %player%'s inventory."
+  ender-opened: "&aViewing %player%'s ender chest."
+  copied: "&aCopied %player%'s inventory contents."
+  ender-copied: "&aCopied %player%'s ender chest contents."
+  cleared: "&aCleared %player%'s inventory."
+  ender-cleared: "&aCleared %player%'s ender chest."
+  no-edit-permission: "&cYou don't have permission to edit this inventory."
+  player-info:
+    - "&e========== &6Player Info &e=========="
+    - "&ePlayer: &f%player%"
+    - "&eUUID: &f%uuid%"
+    - "&eOnline: &f%online%"
+    - "&eHealth: &f%health%/%max_health%"
+    - "&eHunger: &f%food%"
+    - "&eExperience: &f%level% (%exp%/%max_exp%)"
+    - "&eMode: &f%gamemode%"
+    - "&eLocation: &f%world% (%x%, %y%, %z%)"
+    - "&e===================================="
+  data-logs: "&eThis feature is not yet implemented, stay tuned!"
+
 help:
   header: "&e========== &6WooOmni Help &e=========="
   footer: "&e===================================="
@@ -41,4 +79,6 @@ help:
   vanish: "&e/vanish [player] &7- Toggle vanish mode"
   vanishlist: "&e/vanishlist &7- List vanished players"
   vanishedit: "&e/vanishedit [player] &7- Open vanish settings GUI"
+  ender: "&e/ender <player> &7- View player's ender chest"
+  inv: "&e/inv [player] &7- View player's inventory"
   reload: "&e/wooomni reload [module] &7- Reload configuration"

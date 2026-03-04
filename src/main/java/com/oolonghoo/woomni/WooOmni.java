@@ -4,9 +4,11 @@ import com.oolonghoo.woomni.command.MainCommand;
 import com.oolonghoo.woomni.config.ConfigLoader;
 import com.oolonghoo.woomni.config.MessageManager;
 import com.oolonghoo.woomni.database.StorageManager;
+import com.oolonghoo.woomni.listener.InvSeeListener;
 import com.oolonghoo.woomni.manager.ModuleManager;
 import com.oolonghoo.woomni.module.fly.FlyModule;
 import com.oolonghoo.woomni.module.god.GodModule;
+import com.oolonghoo.woomni.module.inventory.InventoryModule;
 import com.oolonghoo.woomni.module.vanish.VanishModule;
 import com.oolonghoo.woomni.task.AutoSaveTask;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,6 +23,7 @@ public class WooOmni extends JavaPlugin {
     private StorageManager storageManager;
     private ModuleManager moduleManager;
     private AutoSaveTask autoSaveTask;
+    private InvSeeListener invSeeListener;
     private int autoSaveTaskId = -1;
     
     @Override
@@ -70,6 +73,7 @@ public class WooOmni extends JavaPlugin {
         moduleManager.registerModule("fly", () -> new FlyModule(this));
         moduleManager.registerModule("god", () -> new GodModule(this));
         moduleManager.registerModule("vanish", () -> new VanishModule(this));
+        moduleManager.registerModule("inventory", () -> new InventoryModule(this));
     }
     
     private void registerCommands() {
@@ -94,6 +98,16 @@ public class WooOmni extends JavaPlugin {
         
         getCommand("vanishedit").setExecutor(mainCommand.getVanishEditCommand());
         getCommand("vanishedit").setTabCompleter(mainCommand.getVanishEditCommand());
+        
+        getCommand("inv").setExecutor(mainCommand.getInvCommand());
+        getCommand("inv").setTabCompleter(mainCommand.getInvCommand());
+        
+        getCommand("ender").setExecutor(mainCommand.getEnderCommand());
+        getCommand("ender").setTabCompleter(mainCommand.getEnderCommand());
+        
+        // 注册InvSee监听器
+        invSeeListener = new InvSeeListener(this);
+        getServer().getPluginManager().registerEvents(invSeeListener, this);
     }
     
     private void startAutoSave() {

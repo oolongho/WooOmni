@@ -1,0 +1,46 @@
+# Inventory module configuration
+# Inventory模块配置文件
+
+# 填充物品配置 (用于GUI界面中的空白位置填充)
+filler:
+  # 物品材质 (使用Bukkit Material枚举值)
+  material: LIME_STAINED_GLASS_PANE
+  # 显示名称 (支持颜色代码使用&)
+  name: " "
+
+# 按钮物品配置
+buttons:
+  # 复制按钮
+  copy:
+    material: CHEST
+    name: "&a复制"
+    lore:
+      - "&7点击复制内容"
+  
+  # 清空按钮
+  clear:
+    material: BARRIER
+    name: "&c清空"
+    lore:
+      - "&7点击清空内容"
+  
+  # 切换按钮
+  toggle:
+    material: LEVER
+    name: "&e切换"
+    lore:
+      - "&7点击切换状态"
+  
+  # 信息按钮
+  info:
+    material: BOOK
+    name: "&b信息"
+    lore:
+      - "&7点击查看详细信息"
+  
+  # 记录按钮
+  log:
+    material: WRITABLE_BOOK
+    name: "&d记录"
+    lore:
+      - "&7点击查看操作记录"

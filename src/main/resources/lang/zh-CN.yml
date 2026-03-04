@@ -32,6 +32,44 @@ vanish:
   list: "&e当前有 %count% 位玩家处于隐身状态: %players%"
   list-empty: "&e当前没有玩家处于隐身状态。"
 
+ender:
+  usage: "&e用法: /ender <玩家>"
+  opened: "&a已打开 %player% 的末影箱。"
+  exempt: "&c玩家 %player% 拥有豁免权限，无法查看其末影箱。"
+  no-edit: "&c你没有编辑权限。"
+
+inv:
+  usage: "&e用法: /inv <玩家>"
+  exempt: "&c玩家 %player% 拥有豁免权限，无法查看其背包。"
+  no-edit: "&c你没有编辑权限。"
+  player-offline: "&c玩家 %player% 已离线。"
+  copied: "&a已复制 %player% 的背包内容。"
+  cleared: "&a已清空 %player% 的背包。"
+  feature-not-implemented: "&e此功能暂未实现，敬请期待！"
+
+inventory:
+  player-not-found: "&c玩家未找到: %player%"
+  exempt: "&c玩家 %player% 拥有豁免权限，无法查看其背包。"
+  inv-opened: "&a正在查看 %player% 的背包。"
+  ender-opened: "&a正在查看 %player% 的末影箱。"
+  copied: "&a已复制 %player% 的背包内容。"
+  ender-copied: "&a已复制 %player% 的末影箱内容。"
+  cleared: "&a已清空 %player% 的背包。"
+  ender-cleared: "&a已清空 %player% 的末影箱。"
+  no-edit-permission: "&c你没有权限编辑此背包。"
+  player-info:
+    - "&e========== &6玩家信息 &e=========="
+    - "&e玩家: &f%player%"
+    - "&eUUID: &f%uuid%"
+    - "&e在线: &f%online%"
+    - "&e血量: &f%health%/%max_health%"
+    - "&e饥饿: &f%food%"
+    - "&e经验: &f%level%级 (%exp%/%max_exp%)"
+    - "&e模式: &f%gamemode%"
+    - "&e位置: &f%world% (%x%, %y%, %z%)"
+    - "&e===================================="
+  data-logs: "&e此功能暂未实现，敬请期待！"
+
 help:
   header: "&e========== &6WooOmni 帮助 &e=========="
   footer: "&e===================================="
@@ -41,4 +79,6 @@ help:
   vanish: "&e/vanish [玩家] &7- 切换隐身模式"
   vanishlist: "&e/vanishlist &7- 查看隐身玩家列表"
   vanishedit: "&e/vanishedit [玩家] &7- 打开隐身设置界面"
+  ender: "&e/ender <玩家> &7- 查看玩家末影箱"
+  inv: "&e/inv [玩家] &7- 查看玩家背包"
   reload: "&e/wooomni reload [模块] &7- 重新加载配置"

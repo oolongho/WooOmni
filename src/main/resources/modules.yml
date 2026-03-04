@@ -11,3 +11,6 @@ modules:
     
   vanish:
     enabled: true
+    
+  inventory:
+    enabled: true

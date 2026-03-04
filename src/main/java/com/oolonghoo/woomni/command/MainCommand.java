@@ -21,6 +21,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     private final VanishCommand vanishCommand;
     private final VanishListCommand vanishListCommand;
     private final VanishEditCommand vanishEditCommand;
+    private final InvCommand invCommand;
+    private final EnderCommand enderCommand;
     
     public MainCommand(WooOmni plugin) {
         this.plugin = plugin;
@@ -31,6 +33,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         this.vanishCommand = new VanishCommand(plugin);
         this.vanishListCommand = new VanishListCommand(plugin);
         this.vanishEditCommand = new VanishEditCommand(plugin);
+        this.invCommand = new InvCommand(plugin);
+        this.enderCommand = new EnderCommand(plugin);
     }
     
     @Override
@@ -80,6 +84,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(msg.get("help.vanish"));
         sender.sendMessage(msg.get("help.vanishlist"));
         sender.sendMessage(msg.get("help.vanishedit"));
+        sender.sendMessage(msg.get("help.inv"));
+        sender.sendMessage(msg.get("help.ender"));
         if (sender.hasPermission("wooomni.reload")) {
             sender.sendMessage(msg.get("help.reload"));
         }
@@ -136,5 +142,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     
     public VanishEditCommand getVanishEditCommand() {
         return vanishEditCommand;
+    }
+    
+    public InvCommand getInvCommand() {
+        return invCommand;
+    }
+    
+    public EnderCommand getEnderCommand() {
+        return enderCommand;
     }
 }

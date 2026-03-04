@@ -41,6 +41,16 @@ commands:
     usage: /vanishedit [player]
     permission: wooomni.vanish.edit
     aliases: [ve, vedit]
+  inv:
+    description: View or edit player inventory
+    usage: /inv <player>
+    permission: wooomni.inv.view
+    aliases: [inventory]
+  ender:
+    description: View or edit player ender chest
+    usage: /ender <player>
+    permission: wooomni.ender.view
+    aliases: [enderchest, echest]
 
 permissions:
   wooomni.use:
@@ -73,3 +83,15 @@ permissions:
     default: op
   wooomni.vanish.edit.other:
     default: op
+  wooomni.inv.view:
+    default: op
+  wooomni.inv.edit:
+    default: op
+  wooomni.inv.exempt:
+    default: false
+  wooomni.ender.view:
+    default: op
+  wooomni.ender.edit:
+    default: op
+  wooomni.ender.exempt:
+    default: false
