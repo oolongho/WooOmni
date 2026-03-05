@@ -45,6 +45,7 @@ public class OfflinePlayerDataUtil {
     private static volatile boolean nmsAvailable = false;
     private static String serverVersion;
     private static String nmsVersion;
+    private static boolean useVersionedNMS;
     
     // NMS 类缓存
     private static Class<?> nbtTagCompoundClass;
