@@ -4,7 +4,7 @@ general:
   no-permission: "&c你没有权限执行此操作。"
   player-only: "&c此命令只能由玩家执行。"
   player-not-found: "&c找不到玩家: %player%"
-  unknown-command: "&c未知的命令。使用 /wo help 查看帮助。"
+  unknown-command: "&c未知的命令。使用 /omni help 查看帮助。"
   reload-success: "&a配置已重新加载。"
   module-reloaded: "&a模块 %module% 已重新加载。"
   module-not-found: "&c找不到模块: %module%"
@@ -17,7 +17,7 @@ fly:
   speed-set: "&a已将 %player% 的飞行速度设置为 %speed%。"
   speed-set-self: "&a飞行速度已设置为 %speed%。"
   speed-invalid: "&c无效的速度值。必须在 0.1-10 之间。"
-  
+
 god:
   enabled: "&a已为 %player% 开启无敌模式。"
   disabled: "&c已为 %player% 关闭无敌模式。"
@@ -45,7 +45,9 @@ inv:
   no-edit: "&c你没有编辑权限。"
   player-offline: "&c玩家 %player% 已离线。"
   copied: "&a已复制 %player% 的背包内容。"
+  copied-ender: "&a已复制 %player% 的末影箱内容。"
   cleared: "&a已清空 %player% 的背包。"
+  cleared-ender: "&a已清空 %player% 的末影箱。"
   feature-not-implemented: "&e此功能暂未实现，敬请期待！"
   cannot-view-self: "&c你不能查看自己的背包！"
 
@@ -70,7 +72,6 @@ inventory:
     - "&e模式: &f%gamemode%"
     - "&e位置: &f%world% (%x%, %y%, %z%)"
     - "&e===================================="
-  data-logs: "&e此功能暂未实现，敬请期待！"
 
 help:
   header: "&e========== &6WooOmni 帮助 &e=========="
@@ -81,6 +82,6 @@ help:
   vanish: "&e/vanish [玩家] &7- 切换隐身模式"
   vanishlist: "&e/vanishlist &7- 查看隐身玩家列表"
   vanishedit: "&e/vanishedit [玩家] &7- 打开隐身设置GUI"
-  inv: "&e/inv [玩家] &7- 查看玩家背包"
-  ender: "&e/ender <玩家> &7- 查看玩家末影箱"
-  reload: "&e/wooomni reload [模块] &7- 重载配置"
+  inv: "&e/inv <玩家> &7- 查看玩家背包"
+  ender: "&e/ender [玩家] &7- 查看玩家末影箱(无参数打开自己)"
+  reload: "&e/omni reload [模块] &7- 重载配置"

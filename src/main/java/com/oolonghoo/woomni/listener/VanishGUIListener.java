@@ -11,6 +11,7 @@ import org.bukkit.inventory.InventoryHolder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class VanishGUIListener implements Listener {
     

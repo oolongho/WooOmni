@@ -19,9 +19,9 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 背包查看GUI监听器
@@ -32,7 +32,7 @@ public class InvSeeListener implements Listener {
     private final MessageManager msg;
     private final OfflinePlayerDataUtil dataUtil;
     
-    private final Map<UUID, InvSeeGUI> openGUIs = new HashMap<>();
+    private final Map<UUID, InvSeeGUI> openGUIs = new ConcurrentHashMap<>();
     
     public InvSeeListener(WooOmni plugin, OfflinePlayerDataUtil dataUtil) {
         this.plugin = plugin;

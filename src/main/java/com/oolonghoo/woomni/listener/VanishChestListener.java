@@ -18,9 +18,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 静默开箱监听器
@@ -31,7 +31,7 @@ public class VanishChestListener implements Listener {
     private final WooOmni plugin;
     private final VanishDataManager dataManager;
     private final VanishHider hider;
-    private final Map<UUID, GameMode> savedGameModes = new HashMap<>();
+    private final Map<UUID, GameMode> savedGameModes = new ConcurrentHashMap<>();
     
     public VanishChestListener(WooOmni plugin, VanishDataManager dataManager, VanishHider hider) {
         this.plugin = plugin;

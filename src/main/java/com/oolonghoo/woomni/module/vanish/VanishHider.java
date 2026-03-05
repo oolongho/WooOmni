@@ -1,5 +1,6 @@
 package com.oolonghoo.woomni.module.vanish;
 
+import com.oolonghoo.woomni.Perms;
 import com.oolonghoo.woomni.WooOmni;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,8 +21,6 @@ public class VanishHider {
     private final VanishDataManager dataManager;
     
     private final Set<UUID> vanishedPlayers = ConcurrentHashMap.newKeySet();
-    
-    private static final String SEE_VANISH_PERMISSION = "wooomni.vanish.see";
     
     public VanishHider(WooOmni plugin, VanishDataManager dataManager) {
         this.plugin = plugin;
@@ -44,7 +43,7 @@ public class VanishHider {
                 continue;
             }
             
-            if (!other.hasPermission(SEE_VANISH_PERMISSION)) {
+            if (!other.hasPermission(Perms.Vanish.SEE)) {
                 other.hidePlayer(plugin, player);
             }
         }
@@ -85,7 +84,7 @@ public class VanishHider {
             if (other.equals(player)) {
                 continue;
             }
-            if (!other.hasPermission(SEE_VANISH_PERMISSION)) {
+            if (!other.hasPermission(Perms.Vanish.SEE)) {
                 other.hidePlayer(plugin, player);
             }
         }
@@ -151,7 +150,7 @@ public class VanishHider {
         for (UUID vanishedUuid : vanishedPlayers) {
             Player vanishedPlayer = Bukkit.getPlayer(vanishedUuid);
             if (vanishedPlayer != null && vanishedPlayer.isOnline()) {
-                if (!newPlayer.hasPermission(SEE_VANISH_PERMISSION)) {
+                if (!newPlayer.hasPermission(Perms.Vanish.SEE)) {
                     newPlayer.hidePlayer(plugin, vanishedPlayer);
                 }
             }
@@ -183,7 +182,7 @@ public class VanishHider {
                 }
                 
                 if (isVanished) {
-                    if (other.hasPermission(SEE_VANISH_PERMISSION)) {
+                    if (other.hasPermission(Perms.Vanish.SEE)) {
                         other.showPlayer(plugin, player);
                     } else {
                         other.hidePlayer(plugin, player);
@@ -212,7 +211,7 @@ public class VanishHider {
             return true;
         }
         
-        if (viewer.hasPermission(SEE_VANISH_PERMISSION)) {
+        if (viewer.hasPermission(Perms.Vanish.SEE)) {
             return true;
         }
         

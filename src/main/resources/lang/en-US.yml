@@ -4,7 +4,7 @@ general:
   no-permission: "&cYou don't have permission to do this."
   player-only: "&cThis command can only be used by players."
   player-not-found: "&cPlayer not found: %player%"
-  unknown-command: "&cUnknown command. Use /wo help for help."
+  unknown-command: "&cUnknown command. Use /omni help for help."
   reload-success: "&aConfiguration reloaded successfully."
   module-reloaded: "&aModule %module% reloaded successfully."
   module-not-found: "&cModule not found: %module%"
@@ -47,6 +47,7 @@ inv:
   copied: "&aCopied %player%'s inventory contents."
   copied-ender: "&aCopied %player%'s ender chest contents."
   cleared: "&aCleared %player%'s inventory."
+  cleared-ender: "&aCleared %player%'s ender chest."
   feature-not-implemented: "&eThis feature is not yet implemented, stay tuned!"
   cannot-view-self: "&cYou cannot view your own inventory!"
 
@@ -71,7 +72,6 @@ inventory:
     - "&eMode: &f%gamemode%"
     - "&eLocation: &f%world% (%x%, %y%, %z%)"
     - "&e===================================="
-  data-logs: "&eThis feature is not yet implemented, stay tuned!"
 
 help:
   header: "&e========== &6WooOmni Help &e=========="
@@ -84,4 +84,4 @@ help:
   vanishedit: "&e/vanishedit [player] &7- Open vanish settings GUI"
   inv: "&e/inv <player> &7- View player's inventory"
   ender: "&e/ender [player] &7- View player's ender chest (or your own)"
-  reload: "&e/wooomni reload [module] &7- Reload configuration"
+  reload: "&e/omni reload [module] &7- Reload configuration"

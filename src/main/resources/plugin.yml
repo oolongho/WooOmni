@@ -21,7 +21,7 @@ commands:
   flyspeed:
     description: Set fly speed
     usage: /flyspeed <speed> [player]
-    permission: wooomni.flyspeed
+    permission: wooomni.fly.speed
   god:
     description: Toggle god mode
     usage: /god [player]
@@ -58,21 +58,21 @@ permissions:
     default: op
   wooomni.fly:
     default: op
-  wooomni.fly.other:
+  wooomni.fly.others:
+    default: op
+  wooomni.fly.speed:
     default: op
   wooomni.fly.bypass.disabled:
     default: op
-  wooomni.flyspeed:
-    default: op
   wooomni.god:
     default: op
-  wooomni.god.other:
+  wooomni.god.others:
     default: op
   wooomni.god.bypass.disabled:
     default: op
   wooomni.vanish:
     default: op
-  wooomni.vanish.other:
+  wooomni.vanish.others:
     default: op
   wooomni.vanish.list:
     default: op
@@ -83,6 +83,8 @@ permissions:
   wooomni.vanish.edit:
     default: op
   wooomni.vanish.edit.other:
+    default: op
+  wooomni.vanish.bypass.disabled:
     default: op
   wooomni.inv.view:
     default: op
