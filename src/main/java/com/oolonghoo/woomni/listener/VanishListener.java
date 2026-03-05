@@ -101,18 +101,21 @@ public class VanishListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         
+        // 先获取隐身状态，在 hider 清理之前
+        boolean wasVanished = hider.isVanished(uuid);
+        
         VanishData data = dataManager.getIfPresent(uuid);
         if (data != null) {
             // 保存当前隐身状态
-            data.setVanished(hider.isVanished(uuid));
+            data.setVanished(wasVanished);
             
             // 处理退出消息
-            if (settings.isFakeMessagesEnabled() && hider.isVanished(uuid) && data.shouldShowQuitMessage()) {
+            if (settings.isFakeMessagesEnabled() && wasVanished && data.shouldShowQuitMessage()) {
                 event.quitMessage(null);
             }
         }
         
-        // 清理
+        // 清理（顺序很重要：先清理 hider，再清理 bossBar，最后保存数据）
         hider.onPlayerQuit(player);
         bossBar.removeBossBar(player);
         dataManager.removeFromCache(uuid);

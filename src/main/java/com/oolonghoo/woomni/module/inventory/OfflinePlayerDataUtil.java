@@ -12,6 +12,7 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -35,6 +36,9 @@ public class OfflinePlayerDataUtil {
     private static final int SLOT_CHESTPLATE = 102;
     private static final int SLOT_HELMET = 103;
     private static final int SLOT_OFFHAND = -106;
+    
+    // 并发安全锁 - 每个玩家一个锁，防止并发写入冲突
+    private static final ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
     
     // NMS 反射缓存
     private static volatile boolean nmsInitialized = false;
@@ -632,6 +636,13 @@ public class OfflinePlayerDataUtil {
      * 保存离线玩家背包数据
      */
     public boolean saveOfflineInventory(UUID uuid, ItemStack[] inventoryContents) {
+        // 检查玩家是否在线 - 在线玩家不应通过此方法保存
+        org.bukkit.entity.Player onlinePlayer = Bukkit.getPlayer(uuid);
+        if (onlinePlayer != null && onlinePlayer.isOnline()) {
+            plugin.getLogger().warning("玩家 " + uuid + " 当前在线，跳过离线数据保存");
+            return false;
+        }
+        
         if (!nmsAvailable) {
             plugin.getLogger().warning("NMS 不可用，无法保存离线玩家 " + uuid + " 的背包数据");
             return false;
@@ -643,16 +654,26 @@ public class OfflinePlayerDataUtil {
             return false;
         }
         
-        try {
-            return saveInventoryViaNMS(dataFile, uuid, inventoryContents);
-        } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "无法通过 NMS 保存离线玩家 " + uuid + " 的背包数据: " + e.getMessage());
-            
-            if (plugin.getConfig().getBoolean("debug", false)) {
-                plugin.getLogger().log(Level.SEVERE, "详细错误信息:", e);
+        // 获取玩家专属锁，防止并发写入冲突
+        Object lock = playerLocks.computeIfAbsent(uuid, k -> new Object());
+        
+        synchronized (lock) {
+            try {
+                boolean result = saveInventoryViaNMS(dataFile, uuid, inventoryContents);
+                
+                // 保存完成后移除锁
+                playerLocks.remove(uuid, lock);
+                
+                return result;
+            } catch (Exception e) {
+                plugin.getLogger().log(Level.SEVERE, "无法通过 NMS 保存离线玩家 " + uuid + " 的背包数据: " + e.getMessage());
+                
+                if (plugin.getConfig().getBoolean("debug", false)) {
+                    plugin.getLogger().log(Level.SEVERE, "详细错误信息:", e);
+                }
+                
+                return false;
             }
-            
-            return false;
         }
     }
     
@@ -660,6 +681,13 @@ public class OfflinePlayerDataUtil {
      * 保存离线玩家末影箱数据
      */
     public boolean saveOfflineEnderChest(UUID uuid, ItemStack[] enderChestContents) {
+        // 检查玩家是否在线 - 在线玩家不应通过此方法保存
+        org.bukkit.entity.Player onlinePlayer = Bukkit.getPlayer(uuid);
+        if (onlinePlayer != null && onlinePlayer.isOnline()) {
+            plugin.getLogger().warning("玩家 " + uuid + " 当前在线，跳过离线末影箱数据保存");
+            return false;
+        }
+        
         if (!nmsAvailable) {
             plugin.getLogger().warning("NMS 不可用，无法保存离线玩家 " + uuid + " 的末影箱数据");
             return false;
@@ -671,16 +699,26 @@ public class OfflinePlayerDataUtil {
             return false;
         }
         
-        try {
-            return saveEnderChestViaNMS(dataFile, uuid, enderChestContents);
-        } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "无法通过 NMS 保存离线玩家 " + uuid + " 的末影箱数据: " + e.getMessage());
-            
-            if (plugin.getConfig().getBoolean("debug", false)) {
-                plugin.getLogger().log(Level.SEVERE, "详细错误信息:", e);
+        // 获取玩家专属锁，防止并发写入冲突
+        Object lock = playerLocks.computeIfAbsent(uuid, k -> new Object());
+        
+        synchronized (lock) {
+            try {
+                boolean result = saveEnderChestViaNMS(dataFile, uuid, enderChestContents);
+                
+                // 保存完成后移除锁
+                playerLocks.remove(uuid, lock);
+                
+                return result;
+            } catch (Exception e) {
+                plugin.getLogger().log(Level.SEVERE, "无法通过 NMS 保存离线玩家 " + uuid + " 的末影箱数据: " + e.getMessage());
+                
+                if (plugin.getConfig().getBoolean("debug", false)) {
+                    plugin.getLogger().log(Level.SEVERE, "详细错误信息:", e);
+                }
+                
+                return false;
             }
-            
-            return false;
         }
     }
     

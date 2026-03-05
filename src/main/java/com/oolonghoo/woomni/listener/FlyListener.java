@@ -47,8 +47,15 @@ public class FlyListener implements Listener {
         
         FlyData data = dataManager.getIfPresent(player.getUniqueId());
         if (data != null) {
-            data.setFlying(player.isFlying());
-            data.setFlySpeed(player.getFlySpeed());
+            // 只在玩家有飞行能力时保存飞行状态
+            boolean canFly = player.getAllowFlight();
+            data.setFlying(canFly && player.isFlying());
+            
+            // 保存飞行速度，确保在有效范围内
+            float flySpeed = player.getFlySpeed();
+            if (flySpeed >= 0.0f && flySpeed <= 1.0f) {
+                data.setFlySpeed(flySpeed);
+            }
         }
         
         dataManager.removeFromCache(player.getUniqueId());
