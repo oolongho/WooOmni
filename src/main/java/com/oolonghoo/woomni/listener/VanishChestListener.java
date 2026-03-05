@@ -4,12 +4,14 @@ import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.module.vanish.VanishData;
 import com.oolonghoo.woomni.module.vanish.VanishDataManager;
 import com.oolonghoo.woomni.module.vanish.VanishHider;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,9 +69,7 @@ public class VanishChestListener implements Listener {
         
         event.setCancelled(true);
         
-        // 静默打开容器 - 取消开箱声音
-        // 使用音量0来静音
-        player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.0f, 0.0f);
+        BlockState originalState = block.getState();
         
         if (block.getType() == Material.ENDER_CHEST) {
             player.openInventory(player.getEnderChest());
@@ -76,6 +77,23 @@ public class VanishChestListener implements Listener {
             BlockState state = block.getState();
             if (state instanceof Container) {
                 player.openInventory(((Container) state).getInventory());
+            }
+        }
+        
+        sendSilentChestState(player, block, originalState);
+    }
+    
+    private void sendSilentChestState(Player opener, Block block, BlockState originalState) {
+        Collection<Player> nearbyPlayers = block.getWorld().getNearbyEntitiesByType(
+            Player.class, block.getLocation(), 16);
+        
+        for (Player nearby : nearbyPlayers) {
+            if (nearby.equals(opener)) {
+                continue;
+            }
+            
+            if (hider.isVanished(opener.getUniqueId()) && !nearby.hasPermission("wooomni.vanish.see")) {
+                nearby.sendBlockChange(block.getLocation(), originalState.getBlockData());
             }
         }
     }

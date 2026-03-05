@@ -58,7 +58,7 @@ public class VanishEditGUI implements InventoryHolder {
         inventory.setItem(15, createToggleItem(Material.ANVIL, "禁用物理碰撞", !data.hasPhysicalCollision()));
         inventory.setItem(16, createToggleItem(Material.ENDER_CHEST, "静默开箱", data.hasSilentChest()));
         
-        inventory.setItem(19, createToggleItem(Material.SPAWNER, "阻止周围怪物生成", data.shouldPreventMobSpawn()));
+        inventory.setItem(19, createToggleItem(Material.SPAWNER, "不计入刷怪机制", data.shouldPreventMobSpawn()));
         inventory.setItem(20, createToggleItem(Material.PLAYER_HEAD, "隐藏登入消息", !data.shouldShowJoinMessage()));
         inventory.setItem(21, createToggleItem(Material.PLAYER_HEAD, "隐藏登出消息", !data.shouldShowQuitMessage()));
         inventory.setItem(22, createToggleItem(Material.DRAGON_BREATH, "BOSSBAR提示", data.isBossbarEnabled()));
@@ -210,8 +210,9 @@ public class VanishEditGUI implements InventoryHolder {
         boolean newHideState = !data.shouldHideFromTab();
         data.setHideFromTab(newHideState);
         
-        // 只更新 Tab 列表可见性，不影响整体隐身状态
-        // hidePlayer 已经处理了 Tab 隐藏，这里不需要额外操作
+        if (target != null) {
+            hider.updateTabVisibility(target, newHideState);
+        }
     }
     
     @Override
