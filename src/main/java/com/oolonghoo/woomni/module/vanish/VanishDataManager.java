@@ -35,7 +35,8 @@ public class VanishDataManager extends AbstractUserDataManager<VanishData> {
                    "show_join_message TINYINT NOT NULL DEFAULT 1, " +
                    "show_quit_message TINYINT NOT NULL DEFAULT 1, " +
                    "bossbar_enabled TINYINT NOT NULL DEFAULT 1, " +
-                   "auto_vanish_join TINYINT NOT NULL DEFAULT 0" +
+                   "auto_vanish_join TINYINT NOT NULL DEFAULT 0, " +
+                   "hide_from_tab TINYINT NOT NULL DEFAULT 1" +
                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
         } else {
             return "CREATE TABLE IF NOT EXISTS " + getFullTableName() + " (" +
@@ -51,7 +52,8 @@ public class VanishDataManager extends AbstractUserDataManager<VanishData> {
                    "show_join_message INTEGER NOT NULL DEFAULT 1, " +
                    "show_quit_message INTEGER NOT NULL DEFAULT 1, " +
                    "bossbar_enabled INTEGER NOT NULL DEFAULT 1, " +
-                   "auto_vanish_join INTEGER NOT NULL DEFAULT 0)";
+                   "auto_vanish_join INTEGER NOT NULL DEFAULT 0, " +
+                   "hide_from_tab INTEGER NOT NULL DEFAULT 1)";
         }
     }
     
@@ -64,7 +66,7 @@ public class VanishDataManager extends AbstractUserDataManager<VanishData> {
     protected String buildSelectSQL() {
         return "SELECT vanished, night_vision, pickup_items, can_take_damage, can_damage_others, " +
                "physical_collision, silent_chest, prevent_mob_spawn, show_join_message, " +
-               "show_quit_message, bossbar_enabled, auto_vanish_join FROM " + getFullTableName() + " WHERE uuid = ?";
+               "show_quit_message, bossbar_enabled, auto_vanish_join, hide_from_tab FROM " + getFullTableName() + " WHERE uuid = ?";
     }
     
     @Override
@@ -81,6 +83,11 @@ public class VanishDataManager extends AbstractUserDataManager<VanishData> {
         data.setShowQuitMessage(rs.getBoolean("show_quit_message"));
         data.setBossbarEnabled(rs.getBoolean("bossbar_enabled"));
         data.setAutoVanishJoin(rs.getBoolean("auto_vanish_join"));
+        try {
+            data.setHideFromTab(rs.getBoolean("hide_from_tab"));
+        } catch (SQLException e) {
+            data.setHideFromTab(true);
+        }
     }
     
     @Override
@@ -88,17 +95,17 @@ public class VanishDataManager extends AbstractUserDataManager<VanishData> {
         if (isMySQL()) {
             return "INSERT INTO " + getFullTableName() + " (uuid, vanished, night_vision, pickup_items, " +
                    "can_take_damage, can_damage_others, physical_collision, silent_chest, prevent_mob_spawn, " +
-                   "show_join_message, show_quit_message, bossbar_enabled, auto_vanish_join) " +
-                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                   "show_join_message, show_quit_message, bossbar_enabled, auto_vanish_join, hide_from_tab) " +
+                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                    "ON DUPLICATE KEY UPDATE vanished = ?, night_vision = ?, pickup_items = ?, " +
                    "can_take_damage = ?, can_damage_others = ?, physical_collision = ?, silent_chest = ?, " +
                    "prevent_mob_spawn = ?, show_join_message = ?, show_quit_message = ?, " +
-                   "bossbar_enabled = ?, auto_vanish_join = ?";
+                   "bossbar_enabled = ?, auto_vanish_join = ?, hide_from_tab = ?";
         } else {
             return "INSERT OR REPLACE INTO " + getFullTableName() + " (uuid, vanished, night_vision, pickup_items, " +
                    "can_take_damage, can_damage_others, physical_collision, silent_chest, prevent_mob_spawn, " +
-                   "show_join_message, show_quit_message, bossbar_enabled, auto_vanish_join) " +
-                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                   "show_join_message, show_quit_message, bossbar_enabled, auto_vanish_join, hide_from_tab) " +
+                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         }
     }
     
@@ -117,20 +124,22 @@ public class VanishDataManager extends AbstractUserDataManager<VanishData> {
         stmt.setBoolean(11, data.shouldShowQuitMessage());
         stmt.setBoolean(12, data.isBossbarEnabled());
         stmt.setBoolean(13, data.isAutoVanishJoin());
+        stmt.setBoolean(14, data.shouldHideFromTab());
         
         if (isMySQL()) {
-            stmt.setBoolean(14, data.isVanished());
-            stmt.setBoolean(15, data.hasNightVision());
-            stmt.setBoolean(16, data.canPickupItems());
-            stmt.setBoolean(17, data.canTakeDamage());
-            stmt.setBoolean(18, data.canDamageOthers());
-            stmt.setBoolean(19, data.hasPhysicalCollision());
-            stmt.setBoolean(20, data.hasSilentChest());
-            stmt.setBoolean(21, data.shouldPreventMobSpawn());
-            stmt.setBoolean(22, data.shouldShowJoinMessage());
-            stmt.setBoolean(23, data.shouldShowQuitMessage());
-            stmt.setBoolean(24, data.isBossbarEnabled());
-            stmt.setBoolean(25, data.isAutoVanishJoin());
+            stmt.setBoolean(15, data.isVanished());
+            stmt.setBoolean(16, data.hasNightVision());
+            stmt.setBoolean(17, data.canPickupItems());
+            stmt.setBoolean(18, data.canTakeDamage());
+            stmt.setBoolean(19, data.canDamageOthers());
+            stmt.setBoolean(20, data.hasPhysicalCollision());
+            stmt.setBoolean(21, data.hasSilentChest());
+            stmt.setBoolean(22, data.shouldPreventMobSpawn());
+            stmt.setBoolean(23, data.shouldShowJoinMessage());
+            stmt.setBoolean(24, data.shouldShowQuitMessage());
+            stmt.setBoolean(25, data.isBossbarEnabled());
+            stmt.setBoolean(26, data.isAutoVanishJoin());
+            stmt.setBoolean(27, data.shouldHideFromTab());
         }
     }
     

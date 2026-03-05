@@ -32,13 +32,11 @@ public class InvCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // 检查模块是否加载
         if (!plugin.getModuleManager().isModuleLoaded("inventory")) {
             sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "inventory"));
             return true;
         }
         
-        // 必须是玩家
         if (!(sender instanceof Player)) {
             sender.sendMessage(msg.getWithPrefix("general.player-only"));
             return true;
@@ -46,29 +44,31 @@ public class InvCommand implements CommandExecutor, TabCompleter {
         
         Player viewer = (Player) sender;
         
-        // 检查权限
         if (!viewer.hasPermission(Perms.Inventory.INV_VIEW)) {
             viewer.sendMessage(msg.getWithPrefix("general.no-permission"));
             return true;
         }
         
-        // 检查参数
         if (args.length == 0) {
             viewer.sendMessage(msg.getWithPrefix("inv.usage"));
             return true;
         }
         
-        // 获取目标玩家
         String targetName = args[0];
+        
+        // 禁止查看自己的背包
+        if (targetName.equalsIgnoreCase(viewer.getName())) {
+            viewer.sendMessage(msg.getWithPrefix("inv.cannot-view-self"));
+            return true;
+        }
+        
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         
-        // 检查目标玩家是否存在
         if (!target.hasPlayedBefore() && !target.isOnline()) {
             viewer.sendMessage(msg.getWithPrefix("general.player-not-found", "player", targetName));
             return true;
         }
         
-        // 检查豁免权限
         if (target.isOnline()) {
             Player onlineTarget = target.getPlayer();
             if (onlineTarget != null && onlineTarget.hasPermission(Perms.Inventory.INV_EXEMPT)) {
@@ -77,10 +77,8 @@ public class InvCommand implements CommandExecutor, TabCompleter {
             }
         }
         
-        // 获取模块和设置
         InventoryModule inventoryModule = (InventoryModule) plugin.getModuleManager().getModule("inventory");
         
-        // 创建并打开GUI
         boolean canEdit = viewer.hasPermission(Perms.Inventory.INV_EDIT);
         InvSeeGUI gui = new InvSeeGUI(
             inventoryModule.getSettings(),
@@ -103,12 +101,11 @@ public class InvCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1 && sender.hasPermission(Perms.Inventory.INV_VIEW)) {
             String prefix = args[0].toLowerCase();
             
-            // 在线玩家
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.getName().toLowerCase().startsWith(prefix)) {
-                    // 排除有豁免权限的玩家（如果发送者不是自己）
-                    if (!player.hasPermission(Perms.Inventory.INV_EXEMPT) || 
-                        sender instanceof Player && player.equals(sender)) {
+                    // 排除自己和有豁免权限的玩家
+                    if (!player.equals(sender) && 
+                        !player.hasPermission(Perms.Inventory.INV_EXEMPT)) {
                         completions.add(player.getName());
                     }
                 }

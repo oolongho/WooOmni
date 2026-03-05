@@ -17,15 +17,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class VanishHider {
     
     private final WooOmni plugin;
+    private final VanishDataManager dataManager;
     
-    // 隐身玩家集合
     private final Set<UUID> vanishedPlayers = ConcurrentHashMap.newKeySet();
     
-    // 可以看到隐身玩家的权限
     private static final String SEE_VANISH_PERMISSION = "wooomni.vanish.see";
     
-    public VanishHider(WooOmni plugin) {
+    public VanishHider(WooOmni plugin, VanishDataManager dataManager) {
         this.plugin = plugin;
+        this.dataManager = dataManager;
     }
     
     /**
@@ -36,16 +36,21 @@ public class VanishHider {
         UUID uuid = player.getUniqueId();
         vanishedPlayers.add(uuid);
         
-        // 对所有在线玩家隐藏此玩家
+        VanishData data = dataManager.getIfPresent(uuid);
+        boolean hideFromTab = data == null || data.shouldHideFromTab();
+        
         for (Player other : Bukkit.getOnlinePlayers()) {
             if (other.equals(player)) {
                 continue;
             }
             
-            // 检查其他玩家是否有权限看到隐身玩家
             if (!other.hasPermission(SEE_VANISH_PERMISSION)) {
                 other.hidePlayer(plugin, player);
             }
+        }
+        
+        if (hideFromTab) {
+            hideFromPlayerList(player);
         }
         
         plugin.getLogger().info("[Vanish] 玩家 " + player.getName() + " 已进入隐身状态");
@@ -59,7 +64,6 @@ public class VanishHider {
         UUID uuid = player.getUniqueId();
         vanishedPlayers.remove(uuid);
         
-        // 对所有在线玩家显示此玩家
         for (Player other : Bukkit.getOnlinePlayers()) {
             if (other.equals(player)) {
                 continue;
@@ -67,7 +71,50 @@ public class VanishHider {
             other.showPlayer(plugin, player);
         }
         
+        showInPlayerList(player);
+        
         plugin.getLogger().info("[Vanish] 玩家 " + player.getName() + " 已退出隐身状态");
+    }
+    
+    /**
+     * 从Tab列表隐藏玩家
+     * @param player 要隐藏的玩家
+     */
+    private void hideFromPlayerList(Player player) {
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            if (other.equals(player)) {
+                continue;
+            }
+            if (!other.hasPermission(SEE_VANISH_PERMISSION)) {
+                other.hidePlayer(plugin, player);
+            }
+        }
+    }
+    
+    /**
+     * 在Tab列表显示玩家
+     * @param player 要显示的玩家
+     */
+    private void showInPlayerList(Player player) {
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            if (other.equals(player)) {
+                continue;
+            }
+            other.showPlayer(plugin, player);
+        }
+    }
+    
+    /**
+     * 更新玩家的Tab列表可见性
+     * @param player 目标玩家
+     * @param hide 是否隐藏
+     */
+    public void updateTabVisibility(Player player, boolean hide) {
+        if (hide && isVanished(player)) {
+            hideFromPlayerList(player);
+        } else {
+            showInPlayerList(player);
+        }
     }
     
     /**
@@ -101,11 +148,9 @@ public class VanishHider {
      * @param newPlayer 新加入的玩家
      */
     public void onPlayerJoin(Player newPlayer) {
-        // 隐藏所有隐身玩家对新玩家可见
         for (UUID vanishedUuid : vanishedPlayers) {
             Player vanishedPlayer = Bukkit.getPlayer(vanishedUuid);
             if (vanishedPlayer != null && vanishedPlayer.isOnline()) {
-                // 如果新玩家没有权限看到隐身玩家，则隐藏
                 if (!newPlayer.hasPermission(SEE_VANISH_PERMISSION)) {
                     newPlayer.hidePlayer(plugin, vanishedPlayer);
                 }
@@ -129,22 +174,29 @@ public class VanishHider {
         for (Player player : Bukkit.getOnlinePlayers()) {
             boolean isVanished = vanishedPlayers.contains(player.getUniqueId());
             
+            VanishData data = dataManager.getIfPresent(player.getUniqueId());
+            boolean hideFromTab = data == null || data.shouldHideFromTab();
+            
             for (Player other : Bukkit.getOnlinePlayers()) {
                 if (other.equals(player)) {
                     continue;
                 }
                 
                 if (isVanished) {
-                    // 玩家处于隐身状态
                     if (other.hasPermission(SEE_VANISH_PERMISSION)) {
                         other.showPlayer(plugin, player);
                     } else {
                         other.hidePlayer(plugin, player);
                     }
                 } else {
-                    // 玩家不处于隐身状态，对所有人可见
                     other.showPlayer(plugin, player);
                 }
+            }
+            
+            if (isVanished && hideFromTab) {
+                hideFromPlayerList(player);
+            } else {
+                showInPlayerList(player);
             }
         }
     }
@@ -156,17 +208,14 @@ public class VanishHider {
      * @return 是否可见
      */
     public boolean canSee(Player viewer, Player target) {
-        // 如果目标玩家不隐身，则可见
         if (!isVanished(target)) {
             return true;
         }
         
-        // 如果观察者有权限看到隐身玩家，则可见
         if (viewer.hasPermission(SEE_VANISH_PERMISSION)) {
             return true;
         }
         
-        // 否则不可见
         return false;
     }
     
@@ -182,7 +231,6 @@ public class VanishHider {
      * 清理所有隐身状态
      */
     public void clearAll() {
-        // 显示所有隐身玩家
         for (UUID uuid : vanishedPlayers) {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null && player.isOnline()) {

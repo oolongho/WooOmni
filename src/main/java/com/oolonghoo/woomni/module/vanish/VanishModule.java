@@ -37,7 +37,7 @@ public class VanishModule extends Module {
         log("数据管理器初始化完成");
         
         // 初始化隐藏管理器
-        hider = new VanishHider(plugin);
+        hider = new VanishHider(plugin, dataManager);
         log("隐藏管理器初始化完成");
         
         // 初始化BossBar管理器

@@ -21,6 +21,9 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
     private final WooOmni plugin;
     private final MessageManager msg;
     
+    private static final float MIN_SPEED = 0.1f;
+    private static final float MAX_SPEED = 10.0f;
+    
     public FlySpeedCommand(WooOmni plugin) {
         this.plugin = plugin;
         this.msg = plugin.getMessageManager();
@@ -38,15 +41,15 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         
-        int speed;
+        float speed;
         try {
-            speed = Integer.parseInt(args[0]);
+            speed = Float.parseFloat(args[0]);
         } catch (NumberFormatException e) {
             sender.sendMessage(msg.getWithPrefix("fly.speed-invalid"));
             return true;
         }
         
-        if (speed < 1 || speed > 10) {
+        if (speed < MIN_SPEED || speed > MAX_SPEED) {
             sender.sendMessage(msg.getWithPrefix("fly.speed-invalid"));
             return true;
         }
@@ -81,7 +84,7 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
         return true;
     }
     
-    private void setFlySpeed(Player player, int speed, CommandSender sender) {
+    private void setFlySpeed(Player player, float speed, CommandSender sender) {
         FlyModule flyModule = (FlyModule) plugin.getModuleManager().getModule("fly");
         FlyDataManager dataManager = flyModule.getDataManager();
         FlyData data = dataManager.getFlyData(player.getUniqueId());
@@ -91,11 +94,12 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
         data.setFlySpeed(flySpeed);
         dataManager.saveFlyData(player.getUniqueId());
         
+        String speedStr = String.format("%.1f", speed);
         if (sender.equals(player)) {
-            sender.sendMessage(msg.getWithPrefix("fly.speed-set-self", "speed", String.valueOf(speed)));
+            sender.sendMessage(msg.getWithPrefix("fly.speed-set-self", "speed", speedStr));
         } else {
-            sender.sendMessage(msg.getWithPrefix("fly.speed-set", "player", player.getName(), "speed", String.valueOf(speed)));
-            player.sendMessage(msg.getWithPrefix("fly.speed-set-self", "speed", String.valueOf(speed)));
+            sender.sendMessage(msg.getWithPrefix("fly.speed-set", "player", player.getName(), "speed", speedStr));
+            player.sendMessage(msg.getWithPrefix("fly.speed-set-self", "speed", speedStr));
         }
     }
     
@@ -103,14 +107,8 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         
-        if (args.length == 1) {
-            String prefix = args[0];
-            for (int i = 1; i <= 10; i++) {
-                if (String.valueOf(i).startsWith(prefix)) {
-                    completions.add(String.valueOf(i));
-                }
-            }
-        } else if (args.length == 2 && sender.hasPermission(Perms.Fly.OTHERS)) {
+        // 不再补全速度数值，让玩家自己输入
+        if (args.length == 2 && sender.hasPermission(Perms.Fly.OTHERS)) {
             String prefix = args[1].toLowerCase();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.getName().toLowerCase().startsWith(prefix)) {

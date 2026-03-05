@@ -19,6 +19,7 @@ public class VanishData implements UserData {
     private boolean showQuitMessage;
     private boolean bossbarEnabled;
     private boolean autoVanishJoin;
+    private boolean hideFromTab;
     private boolean dirty;
     
     public VanishData(UUID uuid) {
@@ -35,6 +36,7 @@ public class VanishData implements UserData {
         this.showQuitMessage = true;
         this.bossbarEnabled = true;
         this.autoVanishJoin = false;
+        this.hideFromTab = true;
         this.dirty = false;
     }
     
@@ -148,6 +150,15 @@ public class VanishData implements UserData {
     
     public void setAutoVanishJoin(boolean autoVanishJoin) {
         this.autoVanishJoin = autoVanishJoin;
+        this.dirty = true;
+    }
+    
+    public boolean shouldHideFromTab() {
+        return hideFromTab;
+    }
+    
+    public void setHideFromTab(boolean hideFromTab) {
+        this.hideFromTab = hideFromTab;
         this.dirty = true;
     }
     

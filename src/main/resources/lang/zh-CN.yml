@@ -16,7 +16,7 @@ fly:
   disabled-self: "&c飞行模式已关闭。"
   speed-set: "&a已将 %player% 的飞行速度设置为 %speed%。"
   speed-set-self: "&a飞行速度已设置为 %speed%。"
-  speed-invalid: "&c无效的速度值。必须在 1-10 之间。"
+  speed-invalid: "&c无效的速度值。必须在 0.1-10 之间。"
   
 god:
   enabled: "&a已为 %player% 开启无敌模式。"
@@ -46,6 +46,7 @@ inv:
   copied: "&a已复制 %player% 的背包内容。"
   cleared: "&a已清空 %player% 的背包。"
   feature-not-implemented: "&e此功能暂未实现，敬请期待！"
+  cannot-view-self: "&c你不能查看自己的背包！"
 
 inventory:
   player-not-found: "&c玩家未找到: %player%"
@@ -74,11 +75,11 @@ help:
   header: "&e========== &6WooOmni 帮助 &e=========="
   footer: "&e===================================="
   fly: "&e/fly [玩家] &7- 切换飞行模式"
-  flyspeed: "&e/flyspeed <速度> [玩家] &7- 设置飞行速度 (1-10)"
+  flyspeed: "&e/flyspeed <速度> [玩家] &7- 设置飞行速度 (0.1-10)"
   god: "&e/god [玩家] &7- 切换无敌模式"
   vanish: "&e/vanish [玩家] &7- 切换隐身模式"
   vanishlist: "&e/vanishlist &7- 查看隐身玩家列表"
-  vanishedit: "&e/vanishedit [玩家] &7- 打开隐身设置界面"
-  ender: "&e/ender <玩家> &7- 查看玩家末影箱"
+  vanishedit: "&e/vanishedit [玩家] &7- 打开隐身设置GUI"
   inv: "&e/inv [玩家] &7- 查看玩家背包"
-  reload: "&e/wooomni reload [模块] &7- 重新加载配置"
+  ender: "&e/ender <玩家> &7- 查看玩家末影箱"
+  reload: "&e/wooomni reload [模块] &7- 重载配置"

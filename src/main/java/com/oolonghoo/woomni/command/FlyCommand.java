@@ -3,6 +3,7 @@ package com.oolonghoo.woomni.command;
 import com.oolonghoo.woomni.Perms;
 import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.config.MessageManager;
+import com.oolonghoo.woomni.event.FlyStatusChangeEvent;
 import com.oolonghoo.woomni.module.fly.FlyData;
 import com.oolonghoo.woomni.module.fly.FlyDataManager;
 import com.oolonghoo.woomni.module.fly.FlyModule;
@@ -29,12 +30,10 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("fly")) {
-            // 检查 bypass 权限
             if (!sender.hasPermission(Perms.Fly.BYPASS_DISABLED)) {
                 sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "fly"));
                 return true;
             }
-            // 有 bypass 权限，允许使用基本功能
             return handleBasicFly(sender, args);
         }
         
@@ -68,9 +67,6 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
         return true;
     }
     
-    /**
-     * 处理模块未加载时的基本飞行功能（需要 bypass 权限）
-     */
     private boolean handleBasicFly(CommandSender sender, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
@@ -79,7 +75,17 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
             }
             
             Player player = (Player) sender;
-            boolean newState = !player.getAllowFlight();
+            boolean oldState = player.getAllowFlight();
+            boolean newState = !oldState;
+            
+            FlyStatusChangeEvent event = new FlyStatusChangeEvent(
+                player.getUniqueId(), player.getName(), oldState, newState, player);
+            Bukkit.getPluginManager().callEvent(event);
+            
+            if (event.isCancelled()) {
+                return true;
+            }
+            
             player.setAllowFlight(newState);
             if (newState) {
                 player.setFlying(true);
@@ -102,7 +108,18 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         
-        boolean newState = !target.getAllowFlight();
+        Player initiator = (sender instanceof Player) ? (Player) sender : null;
+        boolean oldState = target.getAllowFlight();
+        boolean newState = !oldState;
+        
+        FlyStatusChangeEvent event = new FlyStatusChangeEvent(
+            target.getUniqueId(), target.getName(), oldState, newState, initiator);
+        Bukkit.getPluginManager().callEvent(event);
+        
+        if (event.isCancelled()) {
+            return true;
+        }
+        
         target.setAllowFlight(newState);
         if (newState) {
             target.setFlying(true);
@@ -121,7 +138,18 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
         FlyDataManager dataManager = flyModule.getDataManager();
         FlyData data = dataManager.getFlyData(player.getUniqueId());
         
-        boolean newState = !player.getAllowFlight();
+        boolean oldState = player.getAllowFlight();
+        boolean newState = !oldState;
+        
+        Player initiator = (sender instanceof Player) ? (Player) sender : null;
+        FlyStatusChangeEvent event = new FlyStatusChangeEvent(
+            player.getUniqueId(), player.getName(), oldState, newState, initiator);
+        Bukkit.getPluginManager().callEvent(event);
+        
+        if (event.isCancelled()) {
+            return;
+        }
+        
         player.setAllowFlight(newState);
         
         if (newState) {
