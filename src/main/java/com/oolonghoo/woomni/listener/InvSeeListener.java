@@ -83,6 +83,11 @@ public class InvSeeListener implements Listener {
             return;
         }
         
+        if (InvSeeGUI.isFillerSlot(slot, gui.getViewType())) {
+            event.setCancelled(true);
+            return;
+        }
+        
         if (InvSeeGUI.isArmorSlot(slot)) {
             if (!gui.canEdit()) {
                 event.setCancelled(true);
@@ -164,6 +169,10 @@ public class InvSeeListener implements Listener {
     }
     
     private void handleToggle(Player viewer, InvSeeGUI gui) {
+        // 切换视图前先保存当前修改
+        Player target = Bukkit.getPlayer(gui.getTargetUUID());
+        syncToTarget(target, gui);
+        
         InvSeeGUI.ViewType newType = gui.getViewType() == InvSeeGUI.ViewType.INVENTORY 
             ? InvSeeGUI.ViewType.ENDER_CHEST 
             : InvSeeGUI.ViewType.INVENTORY;
@@ -416,9 +425,11 @@ public class InvSeeListener implements Listener {
         }
         
         for (int slot : event.getRawSlots()) {
-            if (slot < InvSeeGUI.GUI_SIZE && InvSeeGUI.isButtonSlot(slot)) {
-                event.setCancelled(true);
-                return;
+            if (slot < InvSeeGUI.GUI_SIZE) {
+                if (InvSeeGUI.isButtonSlot(slot) || InvSeeGUI.isFillerSlot(slot, gui.getViewType())) {
+                    event.setCancelled(true);
+                    return;
+                }
             }
         }
         

@@ -18,7 +18,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -48,11 +47,36 @@ public class VanishListener implements Listener {
         this.settings = settings;
     }
     
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerJoinEarly(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        
+        VanishData data = dataManager.getIfPresent(uuid);
+        if (data == null) {
+            return;
+        }
+        
+        // 同步处理加入消息隐藏 - 必须在事件触发时同步设置
+        if (data.isVanished() || data.isAutoVanishJoin()) {
+            if (!data.shouldShowJoinMessage()) {
+                event.joinMessage(null);
+            }
+        }
+    }
+    
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         
+        // 先检查缓存中是否有数据
+        VanishData cachedData = dataManager.getIfPresent(uuid);
+        if (cachedData != null && (cachedData.isVanished() || cachedData.isAutoVanishJoin())) {
+            applyVanishState(player, cachedData);
+        }
+        
+        // 异步加载数据并应用状态
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             VanishData data = dataManager.getVanishData(uuid);
             
@@ -63,26 +87,7 @@ public class VanishListener implements Listener {
             if (data.isVanished() || data.isAutoVanishJoin()) {
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (player.isOnline()) {
-                        hider.hidePlayer(player);
-                        
-                        if (data.isBossbarEnabled()) {
-                            bossBar.showBossBar(player);
-                        }
-                        
-                        if (data.hasNightVision()) {
-                            player.addPotionEffect(new PotionEffect(
-                                PotionEffectType.NIGHT_VISION,
-                                Integer.MAX_VALUE, 0, false, false
-                            ));
-                        }
-                        
-                        // 设置不可见状态（对生物也有效）
-                        player.setInvisible(true);
-                        
-                        // 处理加入消息 - 如果 shouldShowJoinMessage 为 false，则隐藏消息
-                        if (settings.isFakeMessagesEnabled() && !data.shouldShowJoinMessage()) {
-                            event.joinMessage(null);
-                        }
+                        applyVanishState(player, data);
                     }
                 });
             }
@@ -93,6 +98,24 @@ public class VanishListener implements Listener {
                 }
             });
         });
+    }
+    
+    private void applyVanishState(Player player, VanishData data) {
+        hider.hidePlayer(player);
+        
+        if (data.isBossbarEnabled()) {
+            bossBar.showBossBar(player);
+        }
+        
+        if (data.hasNightVision()) {
+            player.addPotionEffect(new PotionEffect(
+                PotionEffectType.NIGHT_VISION,
+                Integer.MAX_VALUE, 0, false, false
+            ));
+        }
+        
+        // 不再使用 setInvisible，因为 hidePlayer 已经足够隐藏玩家
+        // player.setInvisible(true) 会导致玩家自己也看不到自己
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -107,13 +130,10 @@ public class VanishListener implements Listener {
             data.setVanished(wasVanished);
             
             // 处理退出消息 - 如果 shouldShowQuitMessage 为 false，则隐藏消息
-            if (settings.isFakeMessagesEnabled() && wasVanished && !data.shouldShowQuitMessage()) {
+            if (wasVanished && !data.shouldShowQuitMessage()) {
                 event.quitMessage(null);
             }
         }
-        
-        // 清除不可见状态
-        player.setInvisible(false);
         
         hider.onPlayerQuit(player);
         bossBar.removeBossBar(player);

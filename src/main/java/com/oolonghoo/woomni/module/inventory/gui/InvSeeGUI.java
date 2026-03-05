@@ -280,17 +280,17 @@ public class InvSeeGUI implements InventoryHolder {
                 .append(Component.text(lastSeen, NamedTextColor.WHITE)));
         }
         
-        // 死亡次数
-        int deaths = offlinePlayer.getStatistic(Statistic.DEATHS);
-        lore.add(Component.text("死亡次数: ", NamedTextColor.GRAY)
-            .append(Component.text(String.valueOf(deaths), NamedTextColor.RED)));
-        
         // 游戏时长 (以tick为单位，转换为小时)
         int playTimeTicks = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE);
         int playTimeHours = playTimeTicks / (20 * 3600);
         int playTimeMinutes = (playTimeTicks % (20 * 3600)) / (20 * 60);
         lore.add(Component.text("游戏时长: ", NamedTextColor.GRAY)
             .append(Component.text(String.format("%d小时%d分钟", playTimeHours, playTimeMinutes), NamedTextColor.GREEN)));
+        
+        // 死亡次数
+        int deaths = offlinePlayer.getStatistic(Statistic.DEATHS);
+        lore.add(Component.text("死亡次数: ", NamedTextColor.GRAY)
+            .append(Component.text(String.valueOf(deaths), NamedTextColor.RED)));
         
         // 余额 (如果有Vault)
         // TODO: 需要Vault集成
@@ -404,6 +404,14 @@ public class InvSeeGUI implements InventoryHolder {
     
     public static boolean isInventorySlot(int slot) {
         return slot >= SLOT_INVENTORY_START;
+    }
+    
+    public static boolean isFillerSlot(int slot, ViewType viewType) {
+        if (viewType == ViewType.INVENTORY) {
+            return slot == 5 || slot == 8 || (slot >= 9 && slot <= 14);
+        } else {
+            return slot >= 5 && slot <= 17;
+        }
     }
     
     public static int guiSlotToPlayerSlot(int guiSlot) {

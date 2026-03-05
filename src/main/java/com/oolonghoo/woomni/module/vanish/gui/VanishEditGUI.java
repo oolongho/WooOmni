@@ -52,13 +52,13 @@ public class VanishEditGUI implements InventoryHolder {
         
         inventory.setItem(10, createToggleItem(Material.LIME_DYE, "隐身状态", data.isVanished()));
         inventory.setItem(11, createToggleItem(Material.GOLDEN_APPLE, "夜视效果", data.hasNightVision()));
-        inventory.setItem(12, createToggleItem(Material.CHEST, "拾起物品", data.canPickupItems()));
-        inventory.setItem(13, createToggleItem(Material.SHIELD, "可以受伤", data.canTakeDamage()));
-        inventory.setItem(14, createToggleItem(Material.DIAMOND_SWORD, "可以伤害他人", data.canDamageOthers()));
-        inventory.setItem(15, createToggleItem(Material.ANVIL, "物理碰撞", data.hasPhysicalCollision()));
+        inventory.setItem(12, createToggleItem(Material.CHEST, "禁止拾起物品", !data.canPickupItems()));
+        inventory.setItem(13, createToggleItem(Material.SHIELD, "禁止受伤", !data.canTakeDamage()));
+        inventory.setItem(14, createToggleItem(Material.DIAMOND_SWORD, "禁止攻击", !data.canDamageOthers()));
+        inventory.setItem(15, createToggleItem(Material.ANVIL, "禁用物理碰撞", !data.hasPhysicalCollision()));
         inventory.setItem(16, createToggleItem(Material.ENDER_CHEST, "静默开箱", data.hasSilentChest()));
         
-        inventory.setItem(19, createToggleItem(Material.SPAWNER, "阻止怪物生成", data.shouldPreventMobSpawn()));
+        inventory.setItem(19, createToggleItem(Material.SPAWNER, "阻止周围怪物生成", data.shouldPreventMobSpawn()));
         inventory.setItem(20, createToggleItem(Material.PLAYER_HEAD, "隐藏登入消息", !data.shouldShowJoinMessage()));
         inventory.setItem(21, createToggleItem(Material.PLAYER_HEAD, "隐藏登出消息", !data.shouldShowQuitMessage()));
         inventory.setItem(22, createToggleItem(Material.DRAGON_BREATH, "BOSSBAR提示", data.isBossbarEnabled()));
@@ -207,12 +207,11 @@ public class VanishEditGUI implements InventoryHolder {
     }
     
     private void toggleTabVisibility(VanishData data, Player target) {
-        boolean newState = !data.shouldHideFromTab();
-        data.setHideFromTab(newState);
+        boolean newHideState = !data.shouldHideFromTab();
+        data.setHideFromTab(newHideState);
         
-        if (target != null && data.isVanished()) {
-            hider.updateTabVisibility(target, newState);
-        }
+        // 只更新 Tab 列表可见性，不影响整体隐身状态
+        // hidePlayer 已经处理了 Tab 隐藏，这里不需要额外操作
     }
     
     @Override

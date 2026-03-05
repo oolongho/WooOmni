@@ -4,9 +4,9 @@ import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.module.vanish.VanishData;
 import com.oolonghoo.woomni.module.vanish.VanishDataManager;
 import com.oolonghoo.woomni.module.vanish.VanishHider;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
@@ -15,7 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.Map;
@@ -31,7 +30,7 @@ public class VanishChestListener implements Listener {
     private final WooOmni plugin;
     private final VanishDataManager dataManager;
     private final VanishHider hider;
-    private final Map<UUID, GameMode> savedGameModes = new ConcurrentHashMap<>();
+    private final Map<UUID, Boolean> silentChestMode = new ConcurrentHashMap<>();
     
     public VanishChestListener(WooOmni plugin, VanishDataManager dataManager, VanishHider hider) {
         this.plugin = plugin;
@@ -67,8 +66,10 @@ public class VanishChestListener implements Listener {
         
         event.setCancelled(true);
         
-        // 静默打开容器 - 不使用旁观者模式，直接打开
-        // 这样玩家可以正常操作物品
+        // 静默打开容器 - 取消开箱声音
+        // 使用音量0来静音
+        player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.0f, 0.0f);
+        
         if (block.getType() == Material.ENDER_CHEST) {
             player.openInventory(player.getEnderChest());
         } else {
@@ -76,24 +77,6 @@ public class VanishChestListener implements Listener {
             if (state instanceof Container) {
                 player.openInventory(((Container) state).getInventory());
             }
-        }
-        
-        // 取消开箱声音
-        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 0, 0);
-    }
-    
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player)) {
-            return;
-        }
-        
-        Player player = (Player) event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        
-        if (savedGameModes.containsKey(uuid)) {
-            GameMode savedMode = savedGameModes.remove(uuid);
-            player.setGameMode(savedMode);
         }
     }
     
@@ -122,6 +105,6 @@ public class VanishChestListener implements Listener {
     }
     
     public void clearState(UUID uuid) {
-        savedGameModes.remove(uuid);
+        silentChestMode.remove(uuid);
     }
 }
