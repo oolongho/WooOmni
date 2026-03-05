@@ -13,7 +13,7 @@ commands:
     description: Main command
     usage: /wooomni [args]
     permission: wooomni.use
-    aliases: [wo, womni]
+    aliases: [omni, wo]
   fly:
     description: Toggle fly mode
     usage: /fly [player]
@@ -30,17 +30,14 @@ commands:
     description: Toggle vanish mode
     usage: /vanish [player]
     permission: wooomni.vanish
-    aliases: [v]
   vanishlist:
     description: List vanished players
     usage: /vanishlist
     permission: wooomni.vanish.list
-    aliases: [vlist, vl]
   vanishedit:
     description: Open vanish settings GUI
     usage: /vanishedit [player]
     permission: wooomni.vanish.edit
-    aliases: [ve, vedit]
   inv:
     description: View or edit player inventory
     usage: /inv <player>
@@ -48,9 +45,9 @@ commands:
     aliases: [inventory]
   ender:
     description: View or edit player ender chest
-    usage: /ender <player>
+    usage: /ender [player]
     permission: wooomni.ender.view
-    aliases: [enderchest, echest]
+    aliases: [enderchest]
 
 permissions:
   wooomni.use:
@@ -63,11 +60,15 @@ permissions:
     default: op
   wooomni.fly.other:
     default: op
+  wooomni.fly.bypass.disabled:
+    default: op
   wooomni.flyspeed:
     default: op
   wooomni.god:
     default: op
   wooomni.god.other:
+    default: op
+  wooomni.god.bypass.disabled:
     default: op
   wooomni.vanish:
     default: op

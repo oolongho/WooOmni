@@ -25,7 +25,6 @@ import java.util.UUID;
 
 /**
  * 背包查看GUI监听器
- * 处理GUI点击事件和权限检查
  */
 public class InvSeeListener implements Listener {
     
@@ -33,7 +32,6 @@ public class InvSeeListener implements Listener {
     private final MessageManager msg;
     private final OfflinePlayerDataUtil dataUtil;
     
-    // 记录打开的GUI
     private final Map<UUID, InvSeeGUI> openGUIs = new HashMap<>();
     
     public InvSeeListener(WooOmni plugin, OfflinePlayerDataUtil dataUtil) {
@@ -42,9 +40,6 @@ public class InvSeeListener implements Listener {
         this.dataUtil = dataUtil;
     }
     
-    /**
-     * 注册打开的GUI
-     */
     public void registerGUI(Player player, InvSeeGUI gui) {
         openGUIs.put(player.getUniqueId(), gui);
     }
@@ -59,7 +54,6 @@ public class InvSeeListener implements Listener {
         Inventory clickedInventory = event.getClickedInventory();
         Inventory topInventory = event.getView().getTopInventory();
         
-        // 检查是否是InvSeeGUI
         if (!(topInventory.getHolder() instanceof InvSeeGUI)) {
             return;
         }
@@ -67,66 +61,48 @@ public class InvSeeListener implements Listener {
         InvSeeGUI gui = (InvSeeGUI) topInventory.getHolder();
         int rawSlot = event.getRawSlot();
         
-        // 点击的是GUI内部
         if (rawSlot >= 0 && rawSlot < InvSeeGUI.GUI_SIZE) {
             handleGUIClick(event, viewer, gui, rawSlot);
             return;
         }
         
-        // 点击的是玩家自己的背包（底部库存）
-        // 如果没有编辑权限，取消事件
         if (!gui.canEdit()) {
-            // 允许玩家在自己的背包内移动物品
             if (clickedInventory != null && clickedInventory.equals(viewer.getInventory())) {
-                // 检查是否试图将物品放入GUI
                 if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
                     event.setCancelled(true);
-                    viewer.sendMessage(msg.getWithPrefix("inv.no-edit"));
+                    msg.send(viewer, "inv.no-edit");
                 }
             }
         }
     }
     
-    /**
-     * 处理GUI内部点击
-     */
     private void handleGUIClick(InventoryClickEvent event, Player viewer, InvSeeGUI gui, int slot) {
-        // 功能按钮点击
         if (InvSeeGUI.isButtonSlot(slot)) {
             event.setCancelled(true);
             handleButtonClick(viewer, gui, slot);
             return;
         }
         
-        // 装备槽位点击
         if (InvSeeGUI.isArmorSlot(slot)) {
             if (!gui.canEdit()) {
                 event.setCancelled(true);
-                viewer.sendMessage(msg.getWithPrefix("inv.no-edit"));
+                msg.send(viewer, "inv.no-edit");
                 return;
             }
-            
-            // 处理装备编辑
             handleArmorClick(event, viewer, gui, slot);
             return;
         }
         
-        // 背包槽位点击
         if (InvSeeGUI.isInventorySlot(slot)) {
             if (!gui.canEdit()) {
                 event.setCancelled(true);
-                viewer.sendMessage(msg.getWithPrefix("inv.no-edit"));
+                msg.send(viewer, "inv.no-edit");
                 return;
             }
-            
-            // 处理背包编辑
             handleInventoryClick(event, viewer, gui, slot);
         }
     }
     
-    /**
-     * 处理功能按钮点击
-     */
     private void handleButtonClick(Player viewer, InvSeeGUI gui, int slot) {
         switch (slot) {
             case InvSeeGUI.SLOT_COPY:
@@ -139,123 +115,88 @@ public class InvSeeListener implements Listener {
                 handleToggle(viewer, gui);
                 break;
             case InvSeeGUI.SLOT_INFO:
-                handleInfo(viewer, gui);
-                break;
-            case InvSeeGUI.SLOT_LOG:
-                handleLog(viewer, gui);
+            case InvSeeGUI.SLOT_DATA:
                 break;
         }
     }
     
-    /**
-     * 处理复制背包
-     */
     private void handleCopy(Player viewer, InvSeeGUI gui) {
         Player target = Bukkit.getPlayer(gui.getTargetUUID());
         if (target == null) {
-            viewer.sendMessage(msg.getWithPrefix("inv.player-offline", "player", gui.getTargetName()));
+            msg.send(viewer, "inv.player-offline", "player", gui.getTargetName());
             return;
         }
         
-        // 复制目标玩家的背包内容到查看者的背包
-        viewer.getInventory().setContents(target.getInventory().getContents());
-        viewer.sendMessage(msg.getWithPrefix("inv.copied", "player", gui.getTargetName()));
+        if (gui.getViewType() == InvSeeGUI.ViewType.INVENTORY) {
+            viewer.getInventory().setContents(target.getInventory().getContents());
+            msg.send(viewer, "inv.copied", "player", gui.getTargetName());
+        } else {
+            viewer.getEnderChest().setContents(target.getEnderChest().getContents());
+            msg.send(viewer, "inv.copied-ender", "player", gui.getTargetName());
+        }
     }
     
-    /**
-     * 处理清空背包
-     */
     private void handleClear(Player viewer, InvSeeGUI gui) {
         if (!gui.canEdit()) {
-            viewer.sendMessage(msg.getWithPrefix("inv.no-edit"));
+            msg.send(viewer, "inv.no-edit");
             return;
         }
         
         Player target = Bukkit.getPlayer(gui.getTargetUUID());
         if (target == null) {
-            viewer.sendMessage(msg.getWithPrefix("inv.player-offline", "player", gui.getTargetName()));
+            msg.send(viewer, "inv.player-offline", "player", gui.getTargetName());
             return;
         }
         
-        // 清空目标玩家的背包（包括装备栏）
-        target.getInventory().clear();
-        // 清空盔甲栏
-        target.getInventory().setHelmet(null);
-        target.getInventory().setChestplate(null);
-        target.getInventory().setLeggings(null);
-        target.getInventory().setBoots(null);
-        // 清空副手
-        target.getInventory().setItemInOffHand(null);
+        if (gui.getViewType() == InvSeeGUI.ViewType.INVENTORY) {
+            target.getInventory().clear();
+            target.getInventory().setHelmet(null);
+            target.getInventory().setChestplate(null);
+            target.getInventory().setLeggings(null);
+            target.getInventory().setBoots(null);
+            target.getInventory().setItemInOffHand(null);
+        } else {
+            target.getEnderChest().clear();
+        }
         
-        viewer.sendMessage(msg.getWithPrefix("inv.cleared", "player", gui.getTargetName()));
-        
-        // 刷新GUI
+        msg.send(viewer, "inv.cleared", "player", gui.getTargetName());
         refreshGUI(viewer, gui);
     }
     
-    /**
-     * 处理切换到末影箱视图
-     */
     private void handleToggle(Player viewer, InvSeeGUI gui) {
-        // 关闭当前GUI并打开末影箱GUI
-        viewer.closeInventory();
-        viewer.performCommand("ender " + gui.getTargetName());
-    }
-    
-    /**
-     * 处理显示玩家信息
-     */
-    private void handleInfo(Player viewer, InvSeeGUI gui) {
-        Player target = Bukkit.getPlayer(gui.getTargetUUID());
-        if (target == null) {
-            viewer.sendMessage(msg.getWithPrefix("inv.player-offline", "player", gui.getTargetName()));
-            return;
-        }
+        InvSeeGUI.ViewType newType = gui.getViewType() == InvSeeGUI.ViewType.INVENTORY 
+            ? InvSeeGUI.ViewType.ENDER_CHEST 
+            : InvSeeGUI.ViewType.INVENTORY;
         
-        // 使用语言文件中的玩家信息格式
-        java.util.List<String> infoLines = msg.getList("inventory.player-info");
-        for (String line : infoLines) {
-            String formatted = line
-                .replace("%player%", target.getName())
-                .replace("%uuid%", target.getUniqueId().toString())
-                .replace("%online%", "是")
-                .replace("%health%", String.format("%.1f", target.getHealth()))
-                .replace("%max_health%", String.format("%.1f", target.getMaxHealth()))
-                .replace("%food%", String.valueOf(target.getFoodLevel()))
-                .replace("%level%", String.valueOf(target.getLevel()))
-                .replace("%exp%", String.format("%.1f%%", target.getExp() * 100))
-                .replace("%max_exp%", "100%")
-                .replace("%gamemode%", target.getGameMode().name())
-                .replace("%world%", target.getWorld().getName())
-                .replace("%x%", String.format("%.1f", target.getLocation().getX()))
-                .replace("%y%", String.format("%.1f", target.getLocation().getY()))
-                .replace("%z%", String.format("%.1f", target.getLocation().getZ()));
-            viewer.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(formatted));
-        }
+        InvSeeGUI newGui = new InvSeeGUI(
+            gui.getSettings(),
+            gui.getDataUtil(),
+            gui.getTargetUUID(),
+            gui.getTargetName(),
+            gui.isOnline(),
+            gui.canEdit(),
+            newType
+        );
+        
+        viewer.openInventory(newGui.getInventory());
+        registerGUI(viewer, newGui);
     }
     
-    /**
-     * 处理显示数据记录
-     */
-    private void handleLog(Player viewer, InvSeeGUI gui) {
-        // 数据记录功能暂未实现
-        viewer.sendMessage(msg.getWithPrefix("inv.feature-not-implemented"));
-    }
-    
-    /**
-     * 处理装备槽位点击
-     */
     private void handleArmorClick(InventoryClickEvent event, Player viewer, InvSeeGUI gui, int slot) {
         Player target = Bukkit.getPlayer(gui.getTargetUUID());
         if (target == null) {
             event.setCancelled(true);
-            viewer.sendMessage(msg.getWithPrefix("inv.player-offline", "player", gui.getTargetName()));
+            msg.send(viewer, "inv.player-offline", "player", gui.getTargetName());
             return;
         }
         
         int playerSlot = InvSeeGUI.armorSlotToPlayerSlot(slot);
         ItemStack clickedItem = event.getCurrentItem();
         ItemStack cursorItem = event.getCursor();
+        
+        // 检查是否点击的是空槽位占位符
+        boolean isEmptySlotPlaceholder = clickedItem != null && 
+            clickedItem.getType() == Material.GRAY_STAINED_GLASS_PANE;
         
         event.setCancelled(true);
         
@@ -264,7 +205,7 @@ public class InvSeeListener implements Listener {
             case PICKUP_SOME:
             case PICKUP_HALF:
             case PICKUP_ONE:
-                if (clickedItem != null && clickedItem.getType() != Material.AIR) {
+                if (!isEmptySlotPlaceholder && clickedItem != null && clickedItem.getType() != Material.AIR) {
                     viewer.setItemOnCursor(clickedItem.clone());
                     target.getInventory().setItem(playerSlot, null);
                 }
@@ -285,7 +226,11 @@ public class InvSeeListener implements Listener {
                 break;
             case SWAP_WITH_CURSOR:
                 if (cursorItem != null && cursorItem.getType() != Material.AIR) {
-                    viewer.setItemOnCursor(clickedItem != null && clickedItem.getType() != Material.AIR ? clickedItem.clone() : null);
+                    if (!isEmptySlotPlaceholder) {
+                        viewer.setItemOnCursor(clickedItem != null && clickedItem.getType() != Material.AIR ? clickedItem.clone() : null);
+                    } else {
+                        viewer.setItemOnCursor(null);
+                    }
                     target.getInventory().setItem(playerSlot, cursorItem.clone());
                 }
                 break;
@@ -298,14 +243,11 @@ public class InvSeeListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> refreshGUI(viewer, gui), 1L);
     }
     
-    /**
-     * 处理背包槽位点击
-     */
     private void handleInventoryClick(InventoryClickEvent event, Player viewer, InvSeeGUI gui, int slot) {
         Player target = Bukkit.getPlayer(gui.getTargetUUID());
         if (target == null) {
             event.setCancelled(true);
-            viewer.sendMessage(msg.getWithPrefix("inv.player-offline", "player", gui.getTargetName()));
+            msg.send(viewer, "inv.player-offline", "player", gui.getTargetName());
             return;
         }
         
@@ -315,47 +257,32 @@ public class InvSeeListener implements Listener {
             return;
         }
         
-        ItemStack cursorItem = event.getCursor();
-        
-        // 处理不同的点击动作
         switch (event.getAction()) {
             case PICKUP_ALL:
             case PICKUP_SOME:
             case PICKUP_HALF:
             case PICKUP_ONE:
-                // 取出物品 - 允许默认行为
-                break;
             case PLACE_ALL:
             case PLACE_SOME:
             case PLACE_ONE:
-                // 放入物品 - 允许默认行为
-                break;
             case SWAP_WITH_CURSOR:
-                // 交换物品 - 允许默认行为
-                break;
-            case MOVE_TO_OTHER_INVENTORY:
-                // Shift+点击 - 需要特殊处理
-                handleShiftClick(event, viewer, target, playerSlot);
-                return;
             case HOTBAR_SWAP:
             case HOTBAR_MOVE_AND_READD:
-                // 快捷栏交换 - 允许默认行为
                 break;
+            case MOVE_TO_OTHER_INVENTORY:
+                handleShiftClick(event, viewer, target, playerSlot, gui);
+                return;
             default:
                 break;
         }
         
-        // 同步到目标玩家
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             syncToTarget(target, gui);
             refreshGUI(viewer, gui);
         }, 1L);
     }
     
-    /**
-     * 处理Shift+点击
-     */
-    private void handleShiftClick(InventoryClickEvent event, Player viewer, Player target, int playerSlot) {
+    private void handleShiftClick(InventoryClickEvent event, Player viewer, Player target, int playerSlot, InvSeeGUI gui) {
         event.setCancelled(true);
         
         ItemStack clickedItem = event.getCurrentItem();
@@ -363,24 +290,25 @@ public class InvSeeListener implements Listener {
             return;
         }
         
-        // 从目标玩家背包移除物品并添加到查看者背包
-        target.getInventory().setItem(playerSlot, null);
+        if (gui.getViewType() == InvSeeGUI.ViewType.INVENTORY) {
+            target.getInventory().setItem(playerSlot, null);
+        } else {
+            target.getEnderChest().setItem(playerSlot, null);
+        }
         viewer.getInventory().addItem(clickedItem.clone());
         
-        // 刷新GUI
-        InvSeeGUI gui = (InvSeeGUI) event.getView().getTopInventory().getHolder();
         Bukkit.getScheduler().runTaskLater(plugin, () -> refreshGUI(viewer, gui), 1L);
     }
     
-    /**
-     * 同步GUI内容到目标玩家
-     */
     private void syncToTarget(Player target, InvSeeGUI gui) {
+        if (target == null) {
+            saveOfflineInventory(gui);
+            return;
+        }
+        
         Inventory guiInventory = gui.getInventory();
         
-        if (target != null) {
-            // 在线玩家：直接同步
-            // 同步背包物品
+        if (gui.getViewType() == InvSeeGUI.ViewType.INVENTORY) {
             for (int guiSlot = InvSeeGUI.SLOT_INVENTORY_START; guiSlot < InvSeeGUI.GUI_SIZE; guiSlot++) {
                 int playerSlot = InvSeeGUI.guiSlotToPlayerSlot(guiSlot);
                 if (playerSlot >= 0) {
@@ -389,7 +317,6 @@ public class InvSeeListener implements Listener {
                 }
             }
             
-            // 同步装备
             int[] armorSlots = {InvSeeGUI.SLOT_HELMET, InvSeeGUI.SLOT_CHESTPLATE, 
                                InvSeeGUI.SLOT_LEGGINGS, InvSeeGUI.SLOT_BOOTS, InvSeeGUI.SLOT_OFFHAND};
             for (int slot : armorSlots) {
@@ -400,20 +327,24 @@ public class InvSeeListener implements Listener {
                 }
             }
         } else {
-            // 离线玩家：保存到文件
-            saveOfflineInventory(gui);
+            for (int i = 0; i < 27; i++) {
+                int guiSlot = InvSeeGUI.SLOT_INVENTORY_START + i;
+                ItemStack item = guiInventory.getItem(guiSlot);
+                target.getEnderChest().setItem(i, item);
+            }
         }
     }
     
-    /**
-     * 保存离线玩家背包数据
-     */
     private void saveOfflineInventory(InvSeeGUI gui) {
-        if (!gui.isOnline() && dataUtil != null) {
-            Inventory guiInventory = gui.getInventory();
+        if (gui.isOnline() || dataUtil == null) {
+            return;
+        }
+        
+        Inventory guiInventory = gui.getInventory();
+        
+        if (gui.getViewType() == InvSeeGUI.ViewType.INVENTORY) {
             ItemStack[] contents = new ItemStack[41];
             
-            // 收集背包物品 (0-35)
             for (int guiSlot = InvSeeGUI.SLOT_INVENTORY_START; guiSlot < InvSeeGUI.GUI_SIZE; guiSlot++) {
                 int playerSlot = InvSeeGUI.guiSlotToPlayerSlot(guiSlot);
                 if (playerSlot >= 0 && playerSlot < 36) {
@@ -421,42 +352,45 @@ public class InvSeeListener implements Listener {
                 }
             }
             
-            // 收集装备 (36-39)
             contents[36] = guiInventory.getItem(InvSeeGUI.SLOT_BOOTS);
             contents[37] = guiInventory.getItem(InvSeeGUI.SLOT_LEGGINGS);
             contents[38] = guiInventory.getItem(InvSeeGUI.SLOT_CHESTPLATE);
             contents[39] = guiInventory.getItem(InvSeeGUI.SLOT_HELMET);
-            
-            // 副手 (40)
             contents[40] = guiInventory.getItem(InvSeeGUI.SLOT_OFFHAND);
             
-            // 异步保存
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 boolean success = dataUtil.saveOfflineInventory(gui.getTargetUUID(), contents);
                 if (success) {
                     plugin.getLogger().info("已保存离线玩家 " + gui.getTargetName() + " 的背包数据");
-                } else {
-                    plugin.getLogger().warning("保存离线玩家 " + gui.getTargetName() + " 的背包数据失败");
+                }
+            });
+        } else {
+            ItemStack[] contents = new ItemStack[27];
+            for (int i = 0; i < 27; i++) {
+                contents[i] = guiInventory.getItem(InvSeeGUI.SLOT_INVENTORY_START + i);
+            }
+            
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                boolean success = dataUtil.saveOfflineEnderChest(gui.getTargetUUID(), contents);
+                if (success) {
+                    plugin.getLogger().info("已保存离线玩家 " + gui.getTargetName() + " 的末影箱数据");
                 }
             });
         }
     }
     
-    /**
-     * 刷新GUI
-     */
     private void refreshGUI(Player viewer, InvSeeGUI oldGui) {
         Player target = Bukkit.getPlayer(oldGui.getTargetUUID());
         boolean isOnline = target != null;
         
-        // 创建新的GUI实例
         InvSeeGUI newGui = new InvSeeGUI(
             oldGui.getSettings(),
             oldGui.getDataUtil(),
             oldGui.getTargetUUID(),
             oldGui.getTargetName(),
             isOnline,
-            oldGui.canEdit()
+            oldGui.canEdit(),
+            oldGui.getViewType()
         );
         
         viewer.openInventory(newGui.getInventory());
@@ -476,13 +410,11 @@ public class InvSeeListener implements Listener {
         
         InvSeeGUI gui = (InvSeeGUI) topInventory.getHolder();
         
-        // 如果没有编辑权限，取消拖拽
         if (!gui.canEdit()) {
             event.setCancelled(true);
             return;
         }
         
-        // 检查是否拖拽到了功能按钮区域
         for (int slot : event.getRawSlots()) {
             if (slot < InvSeeGUI.GUI_SIZE && InvSeeGUI.isButtonSlot(slot)) {
                 event.setCancelled(true);
@@ -490,7 +422,6 @@ public class InvSeeListener implements Listener {
             }
         }
         
-        // 同步到目标玩家
         Player target = Bukkit.getPlayer(gui.getTargetUUID());
         Bukkit.getScheduler().runTaskLater(plugin, () -> syncToTarget(target, gui), 1L);
     }
@@ -504,15 +435,11 @@ public class InvSeeListener implements Listener {
         Player player = (Player) event.getPlayer();
         InvSeeGUI gui = openGUIs.remove(player.getUniqueId());
         
-        // 如果是离线玩家GUI，在关闭时保存数据
         if (gui != null && !gui.isOnline() && gui.canEdit()) {
             saveOfflineInventory(gui);
         }
     }
     
-    /**
-     * 清理所有记录
-     */
     public void clearAll() {
         openGUIs.clear();
     }

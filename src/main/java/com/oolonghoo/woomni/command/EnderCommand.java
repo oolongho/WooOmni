@@ -21,6 +21,7 @@ import java.util.UUID;
 /**
  * 末影箱查看命令
  * 允许管理员查看并编辑玩家的末影箱
+ * 无参数时打开自己的末影箱
  */
 public class EnderCommand implements CommandExecutor, TabCompleter {
     
@@ -34,13 +35,11 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // 检查模块是否加载
         if (!plugin.getModuleManager().isModuleLoaded("inventory")) {
             sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "inventory"));
             return true;
         }
         
-        // 必须是玩家
         if (!(sender instanceof Player)) {
             sender.sendMessage(msg.getWithPrefix("general.player-only"));
             return true;
@@ -48,37 +47,37 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
         
         Player viewer = (Player) sender;
         
-        // 检查权限
         if (!viewer.hasPermission(Perms.Inventory.ENDER_VIEW)) {
             viewer.sendMessage(msg.getWithPrefix("general.no-permission"));
             return true;
         }
         
-        // 检查参数
+        // 无参数时打开自己的末影箱
         if (args.length == 0) {
-            viewer.sendMessage(msg.getWithPrefix("ender.usage"));
+            viewer.openInventory(viewer.getEnderChest());
             return true;
         }
         
         String targetName = args[0];
         
-        // 尝试获取在线玩家
+        // 禁止查看自己的末影箱（管理界面）
+        if (targetName.equalsIgnoreCase(viewer.getName())) {
+            viewer.openInventory(viewer.getEnderChest());
+            return true;
+        }
+        
         Player onlineTarget = Bukkit.getPlayer(targetName);
         
         if (onlineTarget != null) {
-            // 检查豁免权限
             if (onlineTarget.hasPermission(Perms.Inventory.ENDER_EXEMPT) && !viewer.hasPermission(Perms.Inventory.ENDER_EXEMPT)) {
                 viewer.sendMessage(msg.getWithPrefix("ender.exempt", "player", onlineTarget.getName()));
                 return true;
             }
             
-            // 打开在线玩家的末影箱
             openEnderChest(viewer, onlineTarget, onlineTarget.getUniqueId(), onlineTarget.getName());
         } else {
-            // 尝试获取离线玩家
             OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetName);
             
-            // 检查玩家是否曾经加入过服务器
             if (!offlineTarget.hasPlayedBefore()) {
                 viewer.sendMessage(msg.getWithPrefix("general.player-not-found", "player", targetName));
                 return true;
@@ -87,28 +86,18 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
             UUID targetUUID = offlineTarget.getUniqueId();
             String name = offlineTarget.getName() != null ? offlineTarget.getName() : targetName;
             
-            // 打开离线玩家的末影箱
             openEnderChest(viewer, null, targetUUID, name);
         }
         
         return true;
     }
     
-    /**
-     * 打开末影箱GUI
-     * @param viewer 查看者
-     * @param target 目标玩家（可能为null，表示离线玩家）
-     * @param targetUUID 目标玩家UUID
-     * @param targetName 目标玩家名称
-     */
     private void openEnderChest(Player viewer, Player target, UUID targetUUID, String targetName) {
         InventoryModule inventoryModule = (InventoryModule) plugin.getModuleManager().getModule("inventory");
         InventorySettings settings = inventoryModule.getSettings();
         
-        // 检查编辑权限
         boolean canEdit = viewer.hasPermission(Perms.Inventory.ENDER_EDIT);
         
-        // 创建并打开GUI
         EnderSeeGUI gui = new EnderSeeGUI(settings, inventoryModule.getDataUtil(), targetUUID, targetName, target, canEdit);
         viewer.openInventory(gui.getInventory());
         

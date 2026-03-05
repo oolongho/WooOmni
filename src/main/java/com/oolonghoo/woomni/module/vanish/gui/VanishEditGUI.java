@@ -14,6 +14,8 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,10 +59,11 @@ public class VanishEditGUI implements InventoryHolder {
         inventory.setItem(16, createToggleItem(Material.ENDER_CHEST, "静默开箱", data.hasSilentChest()));
         
         inventory.setItem(19, createToggleItem(Material.SPAWNER, "阻止怪物生成", data.shouldPreventMobSpawn()));
-        inventory.setItem(20, createToggleItem(Material.PLAYER_HEAD, "显示登入信息", data.shouldShowJoinMessage()));
-        inventory.setItem(21, createToggleItem(Material.PLAYER_HEAD, "显示登出信息", data.shouldShowQuitMessage()));
+        inventory.setItem(20, createToggleItem(Material.PLAYER_HEAD, "隐藏登入消息", !data.shouldShowJoinMessage()));
+        inventory.setItem(21, createToggleItem(Material.PLAYER_HEAD, "隐藏登出消息", !data.shouldShowQuitMessage()));
         inventory.setItem(22, createToggleItem(Material.DRAGON_BREATH, "BOSSBAR提示", data.isBossbarEnabled()));
-        inventory.setItem(23, createToggleItem(Material.ENDER_EYE, "自动隐身加入", data.isAutoVanishJoin()));
+        inventory.setItem(23, createToggleItem(Material.ENDER_EYE, "Tab列表隐藏", data.shouldHideFromTab()));
+        inventory.setItem(24, createToggleItem(Material.ENDER_PEARL, "自动隐身加入", data.isAutoVanishJoin()));
         
         ItemStack closeItem = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeItem.getItemMeta();
@@ -98,18 +101,20 @@ public class VanishEditGUI implements InventoryHolder {
         return item;
     }
     
-    public void handleClick(int slot, Player player) {
+    public void handleClick(int slot, Player viewer) {
         VanishData data = dataManager.getIfPresent(targetUUID);
         if (data == null) {
             data = dataManager.getVanishData(targetUUID);
         }
         
+        Player target = Bukkit.getPlayer(targetUUID);
+        
         switch (slot) {
             case 10:
-                toggleVanish(player, data);
+                toggleVanish(viewer, data, target);
                 break;
             case 11:
-                data.setNightVision(!data.hasNightVision());
+                toggleNightVision(data, target);
                 break;
             case 12:
                 data.setPickupItems(!data.canPickupItems());
@@ -136,34 +141,77 @@ public class VanishEditGUI implements InventoryHolder {
                 data.setShowQuitMessage(!data.shouldShowQuitMessage());
                 break;
             case 22:
-                data.setBossbarEnabled(!data.isBossbarEnabled());
+                toggleBossBar(data, target);
                 break;
             case 23:
+                toggleTabVisibility(data, target);
+                break;
+            case 24:
                 data.setAutoVanishJoin(!data.isAutoVanishJoin());
                 break;
             case 40:
-                player.closeInventory();
+                viewer.closeInventory();
                 return;
         }
         
         dataManager.saveVanishData(targetUUID);
         setupItems();
-        player.openInventory(inventory);
+        viewer.openInventory(inventory);
     }
     
-    private void toggleVanish(Player player, VanishData data) {
+    private void toggleVanish(Player viewer, VanishData data, Player target) {
         boolean newState = !data.isVanished();
         data.setVanished(newState);
         
-        Player target = Bukkit.getPlayer(targetUUID);
         if (target != null) {
             if (newState) {
                 hider.hidePlayer(target);
-                bossBar.showBossBar(target);
+                if (data.isBossbarEnabled()) {
+                    bossBar.showBossBar(target);
+                }
+                if (data.hasNightVision()) {
+                    target.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false));
+                }
             } else {
                 hider.showPlayer(target);
                 bossBar.removeBossBar(target);
+                target.removePotionEffect(PotionEffectType.NIGHT_VISION);
             }
+        }
+    }
+    
+    private void toggleNightVision(VanishData data, Player target) {
+        boolean newState = !data.hasNightVision();
+        data.setNightVision(newState);
+        
+        if (target != null && data.isVanished()) {
+            if (newState) {
+                target.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false));
+            } else {
+                target.removePotionEffect(PotionEffectType.NIGHT_VISION);
+            }
+        }
+    }
+    
+    private void toggleBossBar(VanishData data, Player target) {
+        boolean newState = !data.isBossbarEnabled();
+        data.setBossbarEnabled(newState);
+        
+        if (target != null && data.isVanished()) {
+            if (newState) {
+                bossBar.showBossBar(target);
+            } else {
+                bossBar.removeBossBar(target);
+            }
+        }
+    }
+    
+    private void toggleTabVisibility(VanishData data, Player target) {
+        boolean newState = !data.shouldHideFromTab();
+        data.setHideFromTab(newState);
+        
+        if (target != null && data.isVanished()) {
+            hider.updateTabVisibility(target, newState);
         }
     }
     

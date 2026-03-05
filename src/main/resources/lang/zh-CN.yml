@@ -33,10 +33,11 @@ vanish:
   list-empty: "&e当前没有玩家处于隐身状态。"
 
 ender:
-  usage: "&e用法: /ender <玩家>"
+  usage: "&e用法: /ender [玩家]"
   opened: "&a已打开 %player% 的末影箱。"
   exempt: "&c玩家 %player% 拥有豁免权限，无法查看其末影箱。"
   no-edit: "&c你没有编辑权限。"
+  opened-self: "&a已打开你的末影箱。"
 
 inv:
   usage: "&e用法: /inv <玩家>"

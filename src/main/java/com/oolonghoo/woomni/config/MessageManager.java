@@ -1,9 +1,11 @@
 package com.oolonghoo.woomni.config;
 
 import com.oolonghoo.woomni.WooOmni;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +21,10 @@ public class MessageManager {
     private final WooOmni plugin;
     private File langFile;
     private FileConfiguration langConfig;
-    private String prefix;
+    private Component prefixComponent;
+    private String prefixString;
+    
+    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
     
     public MessageManager(WooOmni plugin) {
         this.plugin = plugin;
@@ -28,9 +33,13 @@ public class MessageManager {
     public void initialize() {
         String language = plugin.getConfig().getString("settings.language", "zh-CN");
         loadLanguageFile(language);
-        prefix = LegacyComponentSerializer.legacyAmpersand().serialize(
-            LegacyComponentSerializer.legacyAmpersand().deserialize(
-                langConfig.getString("prefix", "&8[&6WooOmni&8]&r ")));
+        updatePrefix();
+    }
+    
+    private void updatePrefix() {
+        String prefixText = langConfig.getString("prefix", "&8[&6WooOmni&8]&r ");
+        this.prefixComponent = SERIALIZER.deserialize(prefixText);
+        this.prefixString = SERIALIZER.serialize(prefixComponent);
     }
     
     private void loadLanguageFile(String language) {
@@ -64,24 +73,61 @@ public class MessageManager {
     public void reload() {
         String language = plugin.getConfig().getString("settings.language", "zh-CN");
         loadLanguageFile(language);
-        prefix = LegacyComponentSerializer.legacyAmpersand().serialize(
-            LegacyComponentSerializer.legacyAmpersand().deserialize(
-                langConfig.getString("prefix", "&8[&6WooOmni&8]&r ")));
+        updatePrefix();
     }
     
+    /**
+     * 获取消息字符串（已转换颜色代码）
+     */
     public String get(String key, Object... args) {
         String message = langConfig.getString(key, key);
-        message = LegacyComponentSerializer.legacyAmpersand().serialize(
-            LegacyComponentSerializer.legacyAmpersand().deserialize(message));
-        return formatPlaceholders(message, args);
+        message = formatPlaceholders(message, args);
+        return SERIALIZER.serialize(SERIALIZER.deserialize(message));
     }
     
+    /**
+     * 获取消息组件（用于 Adventure 发送）
+     */
+    public Component getComponent(String key, Object... args) {
+        String message = langConfig.getString(key, key);
+        message = formatPlaceholders(message, args);
+        return SERIALIZER.deserialize(message);
+    }
+    
+    /**
+     * 获取带前缀的消息字符串
+     */
     public String getWithPrefix(String key, Object... args) {
-        return prefix + get(key, args);
+        return prefixString + get(key, args);
+    }
+    
+    /**
+     * 获取带前缀的消息组件
+     */
+    public Component getWithPrefixComponent(String key, Object... args) {
+        return prefixComponent.append(getComponent(key, args));
+    }
+    
+    /**
+     * 发送消息给玩家（推荐使用此方法）
+     */
+    public void send(Player player, String key, Object... args) {
+        player.sendMessage(getWithPrefixComponent(key, args));
+    }
+    
+    /**
+     * 发送无前缀消息给玩家
+     */
+    public void sendNoPrefix(Player player, String key, Object... args) {
+        player.sendMessage(getComponent(key, args));
     }
     
     public String getPrefix() {
-        return prefix;
+        return prefixString;
+    }
+    
+    public Component getPrefixComponent() {
+        return prefixComponent;
     }
     
     private String formatPlaceholders(String message, Object... args) {
@@ -108,13 +154,31 @@ public class MessageManager {
     }
     
     /**
-     * 获取字符串列表
+     * 获取字符串列表（已转换颜色代码）
      */
     public List<String> getList(String key) {
         List<String> list = langConfig.getStringList(key);
         if (list.isEmpty()) {
             list = java.util.Collections.singletonList("&cMissing: " + key);
         }
+        for (int i = 0; i < list.size(); i++) {
+            list.set(i, SERIALIZER.serialize(SERIALIZER.deserialize(list.get(i))));
+        }
         return list;
+    }
+    
+    /**
+     * 获取组件列表
+     */
+    public List<Component> getComponentList(String key) {
+        List<String> strings = langConfig.getStringList(key);
+        if (strings.isEmpty()) {
+            strings = java.util.Collections.singletonList("&cMissing: " + key);
+        }
+        List<Component> components = new java.util.ArrayList<>();
+        for (String str : strings) {
+            components.add(SERIALIZER.deserialize(str));
+        }
+        return components;
     }
 }
