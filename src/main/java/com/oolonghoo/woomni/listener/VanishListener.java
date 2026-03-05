@@ -6,9 +6,7 @@ import com.oolonghoo.woomni.module.vanish.VanishData;
 import com.oolonghoo.woomni.module.vanish.VanishDataManager;
 import com.oolonghoo.woomni.module.vanish.VanishHider;
 import com.oolonghoo.woomni.module.vanish.VanishSettings;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,7 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -28,7 +25,7 @@ import java.util.UUID;
 
 /**
  * Vanish模块事件监听器
- * 处理玩家加入、退出、物品拾取、伤害、怪物生成等事件
+ * 处理玩家加入、退出、物品拾取、伤害等事件
  */
 public class VanishListener implements Listener {
     
@@ -57,7 +54,6 @@ public class VanishListener implements Listener {
             return;
         }
         
-        // 同步处理加入消息隐藏 - 必须在事件触发时同步设置
         if (data.isVanished() || data.isAutoVanishJoin()) {
             if (!data.shouldShowJoinMessage()) {
                 event.joinMessage(null);
@@ -70,13 +66,11 @@ public class VanishListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         
-        // 先检查缓存中是否有数据
         VanishData cachedData = dataManager.getIfPresent(uuid);
         if (cachedData != null && (cachedData.isVanished() || cachedData.isAutoVanishJoin())) {
             applyVanishState(player, cachedData);
         }
         
-        // 异步加载数据并应用状态
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             VanishData data = dataManager.getVanishData(uuid);
             
@@ -114,8 +108,9 @@ public class VanishListener implements Listener {
             ));
         }
         
-        // 不再使用 setInvisible，因为 hidePlayer 已经足够隐藏玩家
-        // player.setInvisible(true) 会导致玩家自己也看不到自己
+        if (data.shouldPreventMobSpawn()) {
+            player.setAffectsSpawning(false);
+        }
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -129,7 +124,6 @@ public class VanishListener implements Listener {
         if (data != null) {
             data.setVanished(wasVanished);
             
-            // 处理退出消息 - 如果 shouldShowQuitMessage 为 false，则隐藏消息
             if (wasVanished && !data.shouldShowQuitMessage()) {
                 event.quitMessage(null);
             }
@@ -182,33 +176,6 @@ public class VanishListener implements Listener {
         }
     }
     
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onEntitySpawn(EntitySpawnEvent event) {
-        if (!(event.getEntity() instanceof Monster)) {
-            return;
-        }
-        
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!hider.isVanished(player)) {
-                continue;
-            }
-            
-            VanishData data = dataManager.getIfPresent(player.getUniqueId());
-            if (data == null || !data.shouldPreventMobSpawn()) {
-                continue;
-            }
-            
-            double distance = event.getLocation().distanceSquared(player.getLocation());
-            if (distance < 16384) {
-                event.setCancelled(true);
-                return;
-            }
-        }
-    }
-    
-    /**
-     * 防止生物发现隐身玩家
-     */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         Entity target = event.getTarget();

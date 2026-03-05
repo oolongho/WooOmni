@@ -132,7 +132,7 @@ public class VanishEditGUI implements InventoryHolder {
                 data.setSilentChest(!data.hasSilentChest());
                 break;
             case 19:
-                data.setPreventMobSpawn(!data.shouldPreventMobSpawn());
+                toggleMobSpawnMechanism(data, target);
                 break;
             case 20:
                 data.setShowJoinMessage(!data.shouldShowJoinMessage());
@@ -172,10 +172,14 @@ public class VanishEditGUI implements InventoryHolder {
                 if (data.hasNightVision()) {
                     target.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false));
                 }
+                if (data.shouldPreventMobSpawn()) {
+                    target.setAffectsSpawning(false);
+                }
             } else {
                 hider.showPlayer(target);
                 bossBar.removeBossBar(target);
                 target.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                target.setAffectsSpawning(true);
             }
         }
     }
@@ -212,6 +216,15 @@ public class VanishEditGUI implements InventoryHolder {
         
         if (target != null) {
             hider.updateTabVisibility(target, newHideState);
+        }
+    }
+    
+    private void toggleMobSpawnMechanism(VanishData data, Player target) {
+        boolean newState = !data.shouldPreventMobSpawn();
+        data.setPreventMobSpawn(newState);
+        
+        if (target != null) {
+            target.setAffectsSpawning(!newState);
         }
     }
     
