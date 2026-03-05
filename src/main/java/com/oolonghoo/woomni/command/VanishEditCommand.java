@@ -20,15 +20,10 @@ public class VanishEditCommand implements CommandExecutor, TabCompleter {
     
     private final WooOmni plugin;
     private final MessageManager msg;
-    private VanishGUIListener guiListener;
     
     public VanishEditCommand(WooOmni plugin) {
         this.plugin = plugin;
         this.msg = plugin.getMessageManager();
-    }
-    
-    public void setGuiListener(VanishGUIListener guiListener) {
-        this.guiListener = guiListener;
     }
     
     @Override
@@ -81,6 +76,7 @@ public class VanishEditCommand implements CommandExecutor, TabCompleter {
             target
         );
         
+        VanishGUIListener guiListener = vanishModule.getGuiListener();
         if (guiListener != null) {
             guiListener.registerGUI(viewer, gui);
         }

@@ -2,6 +2,7 @@ package com.oolonghoo.woomni.module.vanish;
 
 import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.listener.VanishChestListener;
+import com.oolonghoo.woomni.listener.VanishGUIListener;
 import com.oolonghoo.woomni.listener.VanishListener;
 import com.oolonghoo.woomni.module.Module;
 import org.bukkit.Bukkit;
@@ -17,6 +18,7 @@ public class VanishModule extends Module {
     private VanishBossBar bossBar;
     private VanishListener listener;
     private VanishChestListener chestListener;
+    private VanishGUIListener guiListener;
     
     public VanishModule(WooOmni plugin) {
         super(plugin, "vanish");
@@ -49,6 +51,10 @@ public class VanishModule extends Module {
         // 注册静默开箱子监听器
         chestListener = new VanishChestListener(plugin, dataManager, hider);
         plugin.getServer().getPluginManager().registerEvents(chestListener, plugin);
+        
+        // 注册GUI监听器
+        guiListener = new VanishGUIListener();
+        plugin.getServer().getPluginManager().registerEvents(guiListener, plugin);
         log("事件监听器注册完成");
         
         // 恢复在线玩家的隐身状态
@@ -249,5 +255,13 @@ public class VanishModule extends Module {
      */
     public VanishBossBar getBossBar() {
         return bossBar;
+    }
+    
+    /**
+     * 获取GUI监听器
+     * @return GUI监听器
+     */
+    public VanishGUIListener getGuiListener() {
+        return guiListener;
     }
 }

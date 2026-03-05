@@ -14,7 +14,7 @@ default-settings:
 
 bossbar:
   color: WHITE
-  style: PROGRESS
+  style: SOLID
   title: "&c你正处于隐身状态"
 
 auto-vanish:

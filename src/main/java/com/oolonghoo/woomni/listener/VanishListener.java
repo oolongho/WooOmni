@@ -188,22 +188,7 @@ public class VanishListener implements Listener {
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        VanishData data = dataManager.getIfPresent(player.getUniqueId());
-        
-        if (data == null || !hider.isVanished(player)) {
-            return;
-        }
-        
-        // 处理静默开箱子
-        if (data.hasSilentChest() && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            org.bukkit.block.Block block = event.getClickedBlock();
-            if (block != null && block.getType().name().contains("CHEST")) {
-                // Paper特有：静默开箱子
-                // 这里可以通过临时切换到旁观者模式实现
-                // 但需要更复杂的逻辑来处理，暂时跳过
-            }
-        }
+        // 静默开箱功能已由 VanishChestListener 处理
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

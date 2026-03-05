@@ -259,35 +259,44 @@ public class InvSeeListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         ItemStack cursorItem = event.getCursor();
         
-        // 处理不同的点击动作
+        event.setCancelled(true);
+        
         switch (event.getAction()) {
             case PICKUP_ALL:
             case PICKUP_SOME:
             case PICKUP_HALF:
             case PICKUP_ONE:
-                // 取出物品
-                target.getInventory().setItem(playerSlot, null);
+                if (clickedItem != null && clickedItem.getType() != Material.AIR) {
+                    viewer.setItemOnCursor(clickedItem.clone());
+                    target.getInventory().setItem(playerSlot, null);
+                }
                 break;
             case PLACE_ALL:
             case PLACE_SOME:
             case PLACE_ONE:
-                // 放入物品
-                target.getInventory().setItem(playerSlot, cursorItem.clone());
-                event.setCancelled(true);
+                if (cursorItem != null && cursorItem.getType() != Material.AIR) {
+                    int amountToPlace = event.getAction() == InventoryAction.PLACE_ONE ? 1 : cursorItem.getAmount();
+                    ItemStack toPlace = cursorItem.clone();
+                    toPlace.setAmount(amountToPlace);
+                    target.getInventory().setItem(playerSlot, toPlace);
+                    
+                    ItemStack newCursor = cursorItem.clone();
+                    newCursor.setAmount(cursorItem.getAmount() - amountToPlace);
+                    viewer.setItemOnCursor(newCursor.getAmount() > 0 ? newCursor : null);
+                }
                 break;
             case SWAP_WITH_CURSOR:
-                // 交换物品
-                target.getInventory().setItem(playerSlot, cursorItem.clone());
+                if (cursorItem != null && cursorItem.getType() != Material.AIR) {
+                    viewer.setItemOnCursor(clickedItem != null && clickedItem.getType() != Material.AIR ? clickedItem.clone() : null);
+                    target.getInventory().setItem(playerSlot, cursorItem.clone());
+                }
                 break;
             case MOVE_TO_OTHER_INVENTORY:
-                // Shift+点击
-                event.setCancelled(true);
                 return;
             default:
                 break;
         }
         
-        // 延迟刷新GUI
         Bukkit.getScheduler().runTaskLater(plugin, () -> refreshGUI(viewer, gui), 1L);
     }
     

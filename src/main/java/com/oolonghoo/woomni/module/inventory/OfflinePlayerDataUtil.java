@@ -105,12 +105,22 @@ public class OfflinePlayerDataUtil {
         
         try {
             // 检测服务器版本
-            serverVersion = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-            plugin.getLogger().info("检测到服务器版本: " + serverVersion);
+            String packageName = Bukkit.getServer().getClass().getPackage().getName();
+            String[] parts = packageName.split("\\.");
             
-            // 对于 Paper 1.20.5+ (包括 1.21+)，NMS 类名已更改
-            // 不再使用版本号前缀
-            boolean useVersionedNMS = serverVersion.contains("v");
+            // Paper 1.20.5+ 不再使用版本号前缀
+            // 例如: org.bukkit.craftbukkit (无版本号)
+            // 旧版本: org.bukkit.craftbukkit.v1_20_R3
+            if (parts.length >= 4 && parts[3].startsWith("v")) {
+                serverVersion = parts[3];
+                useVersionedNMS = true;
+            } else {
+                // Paper 1.20.5+ 使用统一的类名
+                serverVersion = "";
+                useVersionedNMS = false;
+            }
+            
+            plugin.getLogger().info("检测到服务器版本: " + (serverVersion.isEmpty() ? "Paper 1.20.5+" : serverVersion));
             
             if (useVersionedNMS) {
                 nmsVersion = "net.minecraft.server." + serverVersion + ".";
@@ -173,6 +183,9 @@ public class OfflinePlayerDataUtil {
             nbtCompressedStreamToolsClass = Class.forName(nmsVersion + "NBTCompressedStreamTools");
             itemStackClass = Class.forName(nmsVersion + "ItemStack");
             nbtBaseClass = Class.forName(nmsVersion + "NBTBase");
+            
+            // CraftBukkit 类（使用版本号）
+            craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".inventory.CraftItemStack");
         } else {
             // 新版本 (Paper 1.20.5+ / 1.21+)
             nbtTagCompoundClass = Class.forName("net.minecraft.nbt.NBTTagCompound");
@@ -180,10 +193,43 @@ public class OfflinePlayerDataUtil {
             nbtCompressedStreamToolsClass = Class.forName("net.minecraft.nbt.NBTCompressedStreamTools");
             itemStackClass = Class.forName("net.minecraft.world.item.ItemStack");
             nbtBaseClass = Class.forName("net.minecraft.nbt.NBTBase");
+            
+            // CraftBukkit 类（Paper 1.20.5+ 无版本号）
+            // 尝试多种可能的路径
+            try {
+                craftItemStackClass = Class.forName("org.bukkit.craftbukkit.inventory.CraftItemStack");
+            } catch (ClassNotFoundException e) {
+                // 尝试查找实际的 CraftBukkit 路径
+                String cbVersion = findCraftBukkitVersion();
+                if (cbVersion != null) {
+                    craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + cbVersion + ".inventory.CraftItemStack");
+                } else {
+                    throw e;
+                }
+            }
         }
-        
-        // CraftBukkit 类（始终使用版本号）
-        craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + serverVersion + ".inventory.CraftItemStack");
+    }
+    
+    /**
+     * 查找 CraftBukkit 版本
+     */
+    private String findCraftBukkitVersion() {
+        try {
+            // 通过 Bukkit.getServer() 类来获取版本
+            Class<?> serverClass = Bukkit.getServer().getClass();
+            String className = serverClass.getName();
+            // 例如: org.bukkit.craftbukkit.v1_21_R3.CraftServer
+            // 或: org.bukkit.craftbukkit.CraftServer (Paper 1.20.5+)
+            if (className.contains(".craftbukkit.")) {
+                String[] parts = className.split("\\.");
+                if (parts.length >= 3 && parts[2].startsWith("v")) {
+                    return parts[2];
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("无法确定 CraftBukkit 版本: " + e.getMessage());
+        }
+        return null;
     }
     
     /**
