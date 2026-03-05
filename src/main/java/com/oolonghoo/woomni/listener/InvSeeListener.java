@@ -212,28 +212,26 @@ public class InvSeeListener implements Listener {
             return;
         }
         
-        // 显示玩家实时状态
-        viewer.sendMessage(Component.text("========== 玩家信息 ==========", NamedTextColor.GOLD));
-        viewer.sendMessage(Component.text("玩家: ", NamedTextColor.GRAY)
-                .append(Component.text(target.getName(), NamedTextColor.WHITE)));
-        viewer.sendMessage(Component.text("生命值: ", NamedTextColor.GRAY)
-                .append(Component.text(String.format("%.1f/%.1f", target.getHealth(), target.getMaxHealth()), NamedTextColor.RED)));
-        viewer.sendMessage(Component.text("饥饿值: ", NamedTextColor.GRAY)
-                .append(Component.text(String.format("%d/20", target.getFoodLevel()), NamedTextColor.YELLOW)));
-        viewer.sendMessage(Component.text("饱和度: ", NamedTextColor.GRAY)
-                .append(Component.text(String.format("%.1f", target.getSaturation()), NamedTextColor.YELLOW)));
-        viewer.sendMessage(Component.text("经验等级: ", NamedTextColor.GRAY)
-                .append(Component.text(String.valueOf(target.getLevel()), NamedTextColor.GREEN)));
-        viewer.sendMessage(Component.text("经验值: ", NamedTextColor.GRAY)
-                .append(Component.text(String.format("%.1f%%", target.getExp() * 100), NamedTextColor.GREEN)));
-        viewer.sendMessage(Component.text("游戏模式: ", NamedTextColor.GRAY)
-                .append(Component.text(target.getGameMode().name(), NamedTextColor.AQUA)));
-        viewer.sendMessage(Component.text("位置: ", NamedTextColor.GRAY)
-                .append(Component.text(String.format("%s (%.1f, %.1f, %.1f)", 
-                        target.getWorld().getName(), 
-                        target.getLocation().getX(), 
-                        target.getLocation().getY(), 
-                        target.getLocation().getZ()), NamedTextColor.WHITE)));
+        // 使用语言文件中的玩家信息格式
+        java.util.List<String> infoLines = msg.getList("inventory.player-info");
+        for (String line : infoLines) {
+            String formatted = line
+                .replace("%player%", target.getName())
+                .replace("%uuid%", target.getUniqueId().toString())
+                .replace("%online%", "是")
+                .replace("%health%", String.format("%.1f", target.getHealth()))
+                .replace("%max_health%", String.format("%.1f", target.getMaxHealth()))
+                .replace("%food%", String.valueOf(target.getFoodLevel()))
+                .replace("%level%", String.valueOf(target.getLevel()))
+                .replace("%exp%", String.format("%.1f%%", target.getExp() * 100))
+                .replace("%max_exp%", "100%")
+                .replace("%gamemode%", target.getGameMode().name())
+                .replace("%world%", target.getWorld().getName())
+                .replace("%x%", String.format("%.1f", target.getLocation().getX()))
+                .replace("%y%", String.format("%.1f", target.getLocation().getY()))
+                .replace("%z%", String.format("%.1f", target.getLocation().getZ()));
+            viewer.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(formatted));
+        }
     }
     
     /**

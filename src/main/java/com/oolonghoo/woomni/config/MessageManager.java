@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MessageManager {
@@ -104,5 +105,16 @@ public class MessageManager {
     
     public FileConfiguration getLangConfig() {
         return langConfig;
+    }
+    
+    /**
+     * 获取字符串列表
+     */
+    public List<String> getList(String key) {
+        List<String> list = langConfig.getStringList(key);
+        if (list.isEmpty()) {
+            list = java.util.Collections.singletonList("&cMissing: " + key);
+        }
+        return list;
     }
 }

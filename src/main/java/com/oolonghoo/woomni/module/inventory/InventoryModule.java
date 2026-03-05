@@ -73,7 +73,10 @@ public class InventoryModule extends Module {
     
     @Override
     public void saveAll() {
-        // Inventory模块暂时没有需要保存的数据
+        // Inventory模块不需要在此保存数据，原因：
+        // 1. 在线玩家的背包数据由 Minecraft 服务器自动保存
+        // 2. 离线玩家的数据在 GUI 关闭时已通过 InvSeeListener/EnderSeeListener 保存
+        // 3. 没有待保存的缓存数据
     }
     
     /**

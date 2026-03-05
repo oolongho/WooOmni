@@ -29,8 +29,13 @@ public class GodCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("god")) {
-            sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "god"));
-            return true;
+            // 检查 bypass 权限
+            if (!sender.hasPermission(Perms.God.BYPASS_DISABLED)) {
+                sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "god"));
+                return true;
+            }
+            // 有 bypass 权限，允许使用基本功能
+            return handleBasicGod(sender, args);
         }
         
         if (args.length == 0) {
@@ -60,6 +65,50 @@ public class GodCommand implements CommandExecutor, TabCompleter {
         }
         
         toggleGod(target, sender);
+        return true;
+    }
+    
+    /**
+     * 处理模块未加载时的基本无敌功能（需要 bypass 权限）
+     */
+    private boolean handleBasicGod(CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(msg.getWithPrefix("general.player-only"));
+                return true;
+            }
+            
+            Player player = (Player) sender;
+            boolean newState = !player.isInvulnerable();
+            player.setInvulnerable(newState);
+            if (newState) {
+                sender.sendMessage(msg.getWithPrefix("god.enabled-self"));
+            } else {
+                sender.sendMessage(msg.getWithPrefix("god.disabled-self"));
+            }
+            return true;
+        }
+        
+        if (!sender.hasPermission(Perms.God.OTHERS)) {
+            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            return true;
+        }
+        
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null) {
+            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+            return true;
+        }
+        
+        boolean newState = !target.isInvulnerable();
+        target.setInvulnerable(newState);
+        if (newState) {
+            sender.sendMessage(msg.getWithPrefix("god.enabled", "player", target.getName()));
+            target.sendMessage(msg.getWithPrefix("god.enabled-self"));
+        } else {
+            sender.sendMessage(msg.getWithPrefix("god.disabled", "player", target.getName()));
+            target.sendMessage(msg.getWithPrefix("god.disabled-self"));
+        }
         return true;
     }
     

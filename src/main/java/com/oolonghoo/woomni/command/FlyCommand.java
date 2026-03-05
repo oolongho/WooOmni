@@ -29,8 +29,13 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("fly")) {
-            sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "fly"));
-            return true;
+            // 检查 bypass 权限
+            if (!sender.hasPermission(Perms.Fly.BYPASS_DISABLED)) {
+                sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "fly"));
+                return true;
+            }
+            // 有 bypass 权限，允许使用基本功能
+            return handleBasicFly(sender, args);
         }
         
         if (args.length == 0) {
@@ -60,6 +65,54 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
         }
         
         toggleFly(target, sender);
+        return true;
+    }
+    
+    /**
+     * 处理模块未加载时的基本飞行功能（需要 bypass 权限）
+     */
+    private boolean handleBasicFly(CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(msg.getWithPrefix("general.player-only"));
+                return true;
+            }
+            
+            Player player = (Player) sender;
+            boolean newState = !player.getAllowFlight();
+            player.setAllowFlight(newState);
+            if (newState) {
+                player.setFlying(true);
+                sender.sendMessage(msg.getWithPrefix("fly.enabled-self"));
+            } else {
+                player.setFlying(false);
+                sender.sendMessage(msg.getWithPrefix("fly.disabled-self"));
+            }
+            return true;
+        }
+        
+        if (!sender.hasPermission(Perms.Fly.OTHERS)) {
+            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            return true;
+        }
+        
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null) {
+            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+            return true;
+        }
+        
+        boolean newState = !target.getAllowFlight();
+        target.setAllowFlight(newState);
+        if (newState) {
+            target.setFlying(true);
+            sender.sendMessage(msg.getWithPrefix("fly.enabled", "player", target.getName()));
+            target.sendMessage(msg.getWithPrefix("fly.enabled-self"));
+        } else {
+            target.setFlying(false);
+            sender.sendMessage(msg.getWithPrefix("fly.disabled", "player", target.getName()));
+            target.sendMessage(msg.getWithPrefix("fly.disabled-self"));
+        }
         return true;
     }
     
