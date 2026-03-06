@@ -31,7 +31,7 @@ public class GodCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("god")) {
             if (!sender.hasPermission(Perms.God.BYPASS_DISABLED)) {
-                sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "god"));
+                msg.send(sender, "general.module-not-found", "module", "god");
                 return true;
             }
             return handleBasicGod(sender, args);
@@ -39,12 +39,12 @@ public class GodCommand implements CommandExecutor, TabCompleter {
         
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(msg.getWithPrefix("general.player-only"));
+                msg.send(sender, "general.player-only");
                 return true;
             }
             
             if (!sender.hasPermission(Perms.God.USE)) {
-                sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+                msg.send(sender, "general.no-permission");
                 return true;
             }
             
@@ -53,13 +53,13 @@ public class GodCommand implements CommandExecutor, TabCompleter {
         }
         
         if (!sender.hasPermission(Perms.God.OTHERS)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+            msg.send(sender, "general.player-not-found", "player", args[0]);
             return true;
         }
         
@@ -70,7 +70,7 @@ public class GodCommand implements CommandExecutor, TabCompleter {
     private boolean handleBasicGod(CommandSender sender, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(msg.getWithPrefix("general.player-only"));
+                msg.send(sender, "general.player-only");
                 return true;
             }
             
@@ -89,21 +89,21 @@ public class GodCommand implements CommandExecutor, TabCompleter {
             
             player.setInvulnerable(newState);
             if (newState) {
-                sender.sendMessage(msg.getWithPrefix("god.enabled-self"));
+                msg.send(sender, "god.enabled-self");
             } else {
-                sender.sendMessage(msg.getWithPrefix("god.disabled-self"));
+                msg.send(sender, "god.disabled-self");
             }
             return true;
         }
         
         if (!sender.hasPermission(Perms.God.OTHERS)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+            msg.send(sender, "general.player-not-found", "player", args[0]);
             return true;
         }
         
@@ -121,11 +121,11 @@ public class GodCommand implements CommandExecutor, TabCompleter {
         
         target.setInvulnerable(newState);
         if (newState) {
-            sender.sendMessage(msg.getWithPrefix("god.enabled", "player", target.getName()));
-            target.sendMessage(msg.getWithPrefix("god.enabled-self"));
+            msg.send(sender, "god.enabled", "player", target.getName());
+            msg.send(target, "god.enabled-self");
         } else {
-            sender.sendMessage(msg.getWithPrefix("god.disabled", "player", target.getName()));
-            target.sendMessage(msg.getWithPrefix("god.disabled-self"));
+            msg.send(sender, "god.disabled", "player", target.getName());
+            msg.send(target, "god.disabled-self");
         }
         return true;
     }
@@ -153,17 +153,17 @@ public class GodCommand implements CommandExecutor, TabCompleter {
         
         if (sender.equals(player)) {
             if (newState) {
-                sender.sendMessage(msg.getWithPrefix("god.enabled-self"));
+                msg.send(sender, "god.enabled-self");
             } else {
-                sender.sendMessage(msg.getWithPrefix("god.disabled-self"));
+                msg.send(sender, "god.disabled-self");
             }
         } else {
             if (newState) {
-                sender.sendMessage(msg.getWithPrefix("god.enabled", "player", player.getName()));
-                player.sendMessage(msg.getWithPrefix("god.enabled-self"));
+                msg.send(sender, "god.enabled", "player", player.getName());
+                msg.send(player, "god.enabled-self");
             } else {
-                sender.sendMessage(msg.getWithPrefix("god.disabled", "player", player.getName()));
-                player.sendMessage(msg.getWithPrefix("god.disabled-self"));
+                msg.send(sender, "god.disabled", "player", player.getName());
+                msg.send(player, "god.disabled-self");
             }
         }
     }

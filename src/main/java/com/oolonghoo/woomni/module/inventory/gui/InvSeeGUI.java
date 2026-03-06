@@ -338,8 +338,6 @@ public class InvSeeGUI implements InventoryHolder {
         
         if (offHandItem != null && offHandItem.getType() != Material.AIR) {
             inventory.setItem(SLOT_OFFHAND, offHandItem.clone());
-        } else {
-            inventory.setItem(SLOT_OFFHAND, createEmptySlot("副手"));
         }
     }
     

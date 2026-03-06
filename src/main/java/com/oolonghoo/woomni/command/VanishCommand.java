@@ -27,18 +27,18 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("vanish")) {
-            sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "vanish"));
+            msg.send(sender, "general.module-not-found", "module", "vanish");
             return true;
         }
         
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(msg.getWithPrefix("general.player-only"));
+                msg.send(sender, "general.player-only");
                 return true;
             }
             
             if (!sender.hasPermission(Perms.Vanish.USE)) {
-                sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+                msg.send(sender, "general.no-permission");
                 return true;
             }
             
@@ -46,15 +46,14 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         
-        // 处理玩家名参数
         if (!sender.hasPermission(Perms.Vanish.OTHERS)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+            msg.send(sender, "general.player-not-found", "player", args[0]);
             return true;
         }
         
@@ -68,17 +67,17 @@ public class VanishCommand implements CommandExecutor, TabCompleter {
         
         if (sender.equals(player)) {
             if (newState) {
-                sender.sendMessage(msg.getWithPrefix("vanish.enabled-self"));
+                msg.send(sender, "vanish.enabled-self");
             } else {
-                sender.sendMessage(msg.getWithPrefix("vanish.disabled-self"));
+                msg.send(sender, "vanish.disabled-self");
             }
         } else {
             if (newState) {
-                sender.sendMessage(msg.getWithPrefix("vanish.enabled", "player", player.getName()));
-                player.sendMessage(msg.getWithPrefix("vanish.enabled-self"));
+                msg.send(sender, "vanish.enabled", "player", player.getName());
+                msg.send(player, "vanish.enabled-self");
             } else {
-                sender.sendMessage(msg.getWithPrefix("vanish.disabled", "player", player.getName()));
-                player.sendMessage(msg.getWithPrefix("vanish.disabled-self"));
+                msg.send(sender, "vanish.disabled", "player", player.getName());
+                msg.send(player, "vanish.disabled-self");
             }
         }
     }

@@ -53,43 +53,43 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 sendHelp(sender, label);
                 return true;
             default:
-                sender.sendMessage(msg.getWithPrefix("general.unknown-command"));
+                msg.send(sender, "general.unknown-command");
                 return true;
         }
     }
     
     private boolean handleReload(CommandSender sender, String[] args) {
         if (!sender.hasPermission("wooomni.reload")) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
         if (args.length > 1) {
             String moduleName = args[1].toLowerCase();
             plugin.reloadModule(moduleName);
-            sender.sendMessage(msg.getWithPrefix("general.module-reloaded", "module", moduleName));
+            msg.send(sender, "general.module-reloaded", "module", moduleName);
         } else {
             plugin.reload();
-            sender.sendMessage(msg.getWithPrefix("general.reload-success"));
+            msg.send(sender, "general.reload-success");
         }
         
         return true;
     }
     
     private void sendHelp(CommandSender sender, String label) {
-        sender.sendMessage(msg.get("help.header"));
-        sender.sendMessage(msg.get("help.fly"));
-        sender.sendMessage(msg.get("help.flyspeed"));
-        sender.sendMessage(msg.get("help.god"));
-        sender.sendMessage(msg.get("help.vanish"));
-        sender.sendMessage(msg.get("help.vanishlist"));
-        sender.sendMessage(msg.get("help.vanishedit"));
-        sender.sendMessage(msg.get("help.inv"));
-        sender.sendMessage(msg.get("help.ender"));
+        sender.sendMessage(msg.getComponent("help.header"));
+        sender.sendMessage(msg.getComponent("help.fly"));
+        sender.sendMessage(msg.getComponent("help.flyspeed"));
+        sender.sendMessage(msg.getComponent("help.god"));
+        sender.sendMessage(msg.getComponent("help.vanish"));
+        sender.sendMessage(msg.getComponent("help.vanishlist"));
+        sender.sendMessage(msg.getComponent("help.vanishedit"));
+        sender.sendMessage(msg.getComponent("help.inv"));
+        sender.sendMessage(msg.getComponent("help.ender"));
         if (sender.hasPermission("wooomni.reload")) {
-            sender.sendMessage(msg.get("help.reload"));
+            sender.sendMessage(msg.getComponent("help.reload"));
         }
-        sender.sendMessage(msg.get("help.footer"));
+        sender.sendMessage(msg.getComponent("help.footer"));
     }
     
     @Override

@@ -16,8 +16,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -178,6 +181,62 @@ public class VanishChestListener implements Listener {
         
         if (playerStates.containsKey(uuid) && event.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) {
             event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onSpectatorClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
+        
+        Player player = (Player) event.getWhoClicked();
+        UUID uuid = player.getUniqueId();
+        
+        if (!playerStates.containsKey(uuid)) {
+            return;
+        }
+        
+        if (!hider.isVanished(uuid)) {
+            return;
+        }
+        
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(false);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onSpectatorDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
+        
+        Player player = (Player) event.getWhoClicked();
+        UUID uuid = player.getUniqueId();
+        
+        if (!playerStates.containsKey(uuid)) {
+            return;
+        }
+        
+        if (!hider.isVanished(uuid)) {
+            return;
+        }
+        
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(false);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onGameModeChange(PlayerGameModeChangeEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        
+        if (playerStates.containsKey(uuid) && event.getNewGameMode() != GameMode.SPECTATOR) {
+            if (event.isCancelled()) {
+                event.setCancelled(false);
+            }
         }
     }
     

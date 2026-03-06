@@ -3,6 +3,7 @@ package com.oolonghoo.woomni.config;
 import com.oolonghoo.woomni.WooOmni;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -106,6 +107,13 @@ public class MessageManager {
      */
     public Component getWithPrefixComponent(String key, Object... args) {
         return prefixComponent.append(getComponent(key, args));
+    }
+    
+    /**
+     * 发送消息给命令发送者（支持控制台和玩家）
+     */
+    public void send(CommandSender sender, String key, Object... args) {
+        sender.sendMessage(getWithPrefixComponent(key, args));
     }
     
     /**

@@ -29,19 +29,19 @@ public class VanishEditCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("vanish")) {
-            sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "vanish"));
+            msg.send(sender, "general.module-not-found", "module", "vanish");
             return true;
         }
         
         if (!(sender instanceof Player)) {
-            sender.sendMessage(msg.getWithPrefix("general.player-only"));
+            msg.send(sender, "general.player-only");
             return true;
         }
         
         Player player = (Player) sender;
         
         if (!player.hasPermission(Perms.Vanish.EDIT)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
@@ -49,13 +49,13 @@ public class VanishEditCommand implements CommandExecutor, TabCompleter {
         
         if (args.length > 0) {
             if (!player.hasPermission(Perms.Vanish.EDIT_OTHERS)) {
-                sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+                msg.send(sender, "general.no-permission");
                 return true;
             }
             
             target = Bukkit.getPlayer(args[0]);
             if (target == null) {
-                sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+                msg.send(sender, "general.player-not-found", "player", args[0]);
                 return true;
             }
         } else {

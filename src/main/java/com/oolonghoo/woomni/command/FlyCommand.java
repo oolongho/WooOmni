@@ -31,7 +31,7 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("fly")) {
             if (!sender.hasPermission(Perms.Fly.BYPASS_DISABLED)) {
-                sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "fly"));
+                msg.send(sender, "general.module-not-found", "module", "fly");
                 return true;
             }
             return handleBasicFly(sender, args);
@@ -39,12 +39,12 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
         
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(msg.getWithPrefix("general.player-only"));
+                msg.send(sender, "general.player-only");
                 return true;
             }
             
             if (!sender.hasPermission(Perms.Fly.USE)) {
-                sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+                msg.send(sender, "general.no-permission");
                 return true;
             }
             
@@ -53,13 +53,13 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
         }
         
         if (!sender.hasPermission(Perms.Fly.OTHERS)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+            msg.send(sender, "general.player-not-found", "player", args[0]);
             return true;
         }
         
@@ -70,7 +70,7 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
     private boolean handleBasicFly(CommandSender sender, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(msg.getWithPrefix("general.player-only"));
+                msg.send(sender, "general.player-only");
                 return true;
             }
             
@@ -89,22 +89,22 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
             player.setAllowFlight(newState);
             if (newState) {
                 player.setFlying(true);
-                sender.sendMessage(msg.getWithPrefix("fly.enabled-self"));
+                msg.send(sender, "fly.enabled-self");
             } else {
                 player.setFlying(false);
-                sender.sendMessage(msg.getWithPrefix("fly.disabled-self"));
+                msg.send(sender, "fly.disabled-self");
             }
             return true;
         }
         
         if (!sender.hasPermission(Perms.Fly.OTHERS)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[0]));
+            msg.send(sender, "general.player-not-found", "player", args[0]);
             return true;
         }
         
@@ -123,12 +123,12 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
         target.setAllowFlight(newState);
         if (newState) {
             target.setFlying(true);
-            sender.sendMessage(msg.getWithPrefix("fly.enabled", "player", target.getName()));
-            target.sendMessage(msg.getWithPrefix("fly.enabled-self"));
+            msg.send(sender, "fly.enabled", "player", target.getName());
+            msg.send(target, "fly.enabled-self");
         } else {
             target.setFlying(false);
-            sender.sendMessage(msg.getWithPrefix("fly.disabled", "player", target.getName()));
-            target.sendMessage(msg.getWithPrefix("fly.disabled-self"));
+            msg.send(sender, "fly.disabled", "player", target.getName());
+            msg.send(target, "fly.disabled-self");
         }
         return true;
     }
@@ -164,17 +164,17 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
         
         if (sender.equals(player)) {
             if (newState) {
-                sender.sendMessage(msg.getWithPrefix("fly.enabled-self"));
+                msg.send(sender, "fly.enabled-self");
             } else {
-                sender.sendMessage(msg.getWithPrefix("fly.disabled-self"));
+                msg.send(sender, "fly.disabled-self");
             }
         } else {
             if (newState) {
-                sender.sendMessage(msg.getWithPrefix("fly.enabled", "player", player.getName()));
-                player.sendMessage(msg.getWithPrefix("fly.enabled-self"));
+                msg.send(sender, "fly.enabled", "player", player.getName());
+                msg.send(player, "fly.enabled-self");
             } else {
-                sender.sendMessage(msg.getWithPrefix("fly.disabled", "player", player.getName()));
-                player.sendMessage(msg.getWithPrefix("fly.disabled-self"));
+                msg.send(sender, "fly.disabled", "player", player.getName());
+                msg.send(player, "fly.disabled-self");
             }
         }
     }

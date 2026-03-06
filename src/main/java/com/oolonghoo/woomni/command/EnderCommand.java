@@ -36,23 +36,22 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("inventory")) {
-            sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "inventory"));
+            msg.send(sender, "general.module-not-found", "module", "inventory");
             return true;
         }
         
         if (!(sender instanceof Player)) {
-            sender.sendMessage(msg.getWithPrefix("general.player-only"));
+            msg.send(sender, "general.player-only");
             return true;
         }
         
         Player viewer = (Player) sender;
         
         if (!viewer.hasPermission(Perms.Inventory.ENDER_VIEW)) {
-            viewer.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(viewer, "general.no-permission");
             return true;
         }
         
-        // 无参数时打开自己的末影箱
         if (args.length == 0) {
             viewer.openInventory(viewer.getEnderChest());
             return true;
@@ -60,7 +59,6 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
         
         String targetName = args[0];
         
-        // 禁止查看自己的末影箱（管理界面）
         if (targetName.equalsIgnoreCase(viewer.getName())) {
             viewer.openInventory(viewer.getEnderChest());
             return true;
@@ -74,7 +72,7 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
             OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetName);
             
             if (!offlineTarget.hasPlayedBefore()) {
-                viewer.sendMessage(msg.getWithPrefix("general.player-not-found", "player", targetName));
+                msg.send(viewer, "general.player-not-found", "player", targetName);
                 return true;
             }
             
@@ -96,7 +94,7 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
         EnderSeeGUI gui = new EnderSeeGUI(settings, inventoryModule.getDataUtil(), targetUUID, targetName, target, canEdit);
         viewer.openInventory(gui.getInventory());
         
-        viewer.sendMessage(msg.getWithPrefix("ender.opened", "player", targetName));
+        msg.send(viewer, "ender.opened", "player", targetName);
     }
     
     @Override

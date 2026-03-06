@@ -32,12 +32,12 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("fly")) {
-            sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "fly"));
+            msg.send(sender, "general.module-not-found", "module", "fly");
             return true;
         }
         
         if (args.length == 0) {
-            sender.sendMessage(msg.getWithPrefix("help.flyspeed"));
+            msg.send(sender, "help.flyspeed");
             return true;
         }
         
@@ -45,23 +45,23 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
         try {
             speed = Float.parseFloat(args[0]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(msg.getWithPrefix("fly.speed-invalid"));
+            msg.send(sender, "fly.speed-invalid");
             return true;
         }
         
         if (speed < MIN_SPEED || speed > MAX_SPEED) {
-            sender.sendMessage(msg.getWithPrefix("fly.speed-invalid"));
+            msg.send(sender, "fly.speed-invalid");
             return true;
         }
         
         if (args.length == 1) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(msg.getWithPrefix("general.player-only"));
+                msg.send(sender, "general.player-only");
                 return true;
             }
             
             if (!sender.hasPermission(Perms.Fly.SPEED)) {
-                sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+                msg.send(sender, "general.no-permission");
                 return true;
             }
             
@@ -70,13 +70,13 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
         }
         
         if (!sender.hasPermission(Perms.Fly.OTHERS)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            sender.sendMessage(msg.getWithPrefix("general.player-not-found", "player", args[1]));
+            msg.send(sender, "general.player-not-found", "player", args[1]);
             return true;
         }
         
@@ -96,10 +96,10 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
         
         String speedStr = String.format("%.1f", speed);
         if (sender.equals(player)) {
-            sender.sendMessage(msg.getWithPrefix("fly.speed-set-self", "speed", speedStr));
+            msg.send(sender, "fly.speed-set-self", "speed", speedStr);
         } else {
-            sender.sendMessage(msg.getWithPrefix("fly.speed-set", "player", player.getName(), "speed", speedStr));
-            player.sendMessage(msg.getWithPrefix("fly.speed-set-self", "speed", speedStr));
+            msg.send(sender, "fly.speed-set", "player", player.getName(), "speed", speedStr);
+            msg.send(player, "fly.speed-set-self", "speed", speedStr);
         }
     }
     
@@ -107,7 +107,6 @@ public class FlySpeedCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         
-        // 不再补全速度数值，让玩家自己输入
         if (args.length == 2 && sender.hasPermission(Perms.Fly.OTHERS)) {
             String prefix = args[1].toLowerCase();
             for (Player player : Bukkit.getOnlinePlayers()) {

@@ -28,12 +28,12 @@ public class VanishListCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("vanish")) {
-            sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "vanish"));
+            msg.send(sender, "general.module-not-found", "module", "vanish");
             return true;
         }
         
         if (!sender.hasPermission(Perms.Vanish.LIST)) {
-            sender.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(sender, "general.no-permission");
             return true;
         }
         
@@ -48,12 +48,12 @@ public class VanishListCommand implements CommandExecutor, TabCompleter {
         }
         
         if (vanishedNames.isEmpty()) {
-            sender.sendMessage(msg.getWithPrefix("vanish.list-empty"));
+            msg.send(sender, "vanish.list-empty");
         } else {
             String players = String.join(", ", vanishedNames);
-            sender.sendMessage(msg.getWithPrefix("vanish.list", 
+            msg.send(sender, "vanish.list", 
                 "count", String.valueOf(vanishedNames.size()),
-                "players", players));
+                "players", players);
         }
         
         return true;

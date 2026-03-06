@@ -33,39 +33,38 @@ public class InvCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getModuleManager().isModuleLoaded("inventory")) {
-            sender.sendMessage(msg.getWithPrefix("general.module-not-found", "module", "inventory"));
+            msg.send(sender, "general.module-not-found", "module", "inventory");
             return true;
         }
         
         if (!(sender instanceof Player)) {
-            sender.sendMessage(msg.getWithPrefix("general.player-only"));
+            msg.send(sender, "general.player-only");
             return true;
         }
         
         Player viewer = (Player) sender;
         
         if (!viewer.hasPermission(Perms.Inventory.INV_VIEW)) {
-            viewer.sendMessage(msg.getWithPrefix("general.no-permission"));
+            msg.send(viewer, "general.no-permission");
             return true;
         }
         
         if (args.length == 0) {
-            viewer.sendMessage(msg.getWithPrefix("inv.usage"));
+            msg.send(viewer, "inv.usage");
             return true;
         }
         
         String targetName = args[0];
         
-        // 禁止查看自己的背包
         if (targetName.equalsIgnoreCase(viewer.getName())) {
-            viewer.sendMessage(msg.getWithPrefix("inv.cannot-view-self"));
+            msg.send(viewer, "inv.cannot-view-self");
             return true;
         }
         
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
         
         if (!target.hasPlayedBefore() && !target.isOnline()) {
-            viewer.sendMessage(msg.getWithPrefix("general.player-not-found", "player", targetName));
+            msg.send(viewer, "general.player-not-found", "player", targetName);
             return true;
         }
         
