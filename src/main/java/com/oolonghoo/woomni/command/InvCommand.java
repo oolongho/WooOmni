@@ -69,14 +69,6 @@ public class InvCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         
-        if (target.isOnline()) {
-            Player onlineTarget = target.getPlayer();
-            if (onlineTarget != null && onlineTarget.hasPermission(Perms.Inventory.INV_EXEMPT)) {
-                viewer.sendMessage(msg.getWithPrefix("inv.exempt", "player", targetName));
-                return true;
-            }
-        }
-        
         InventoryModule inventoryModule = (InventoryModule) plugin.getModuleManager().getModule("inventory");
         
         boolean canEdit = viewer.hasPermission(Perms.Inventory.INV_EDIT);
@@ -103,9 +95,7 @@ public class InvCommand implements CommandExecutor, TabCompleter {
             
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.getName().toLowerCase().startsWith(prefix)) {
-                    // 排除自己和有豁免权限的玩家
-                    if (!player.equals(sender) && 
-                        !player.hasPermission(Perms.Inventory.INV_EXEMPT)) {
+                    if (!player.equals(sender)) {
                         completions.add(player.getName());
                     }
                 }

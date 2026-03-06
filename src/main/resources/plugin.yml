@@ -90,11 +90,7 @@ permissions:
     default: op
   wooomni.inv.edit:
     default: op
-  wooomni.inv.exempt:
-    default: false
   wooomni.ender.view:
     default: op
   wooomni.ender.edit:
     default: op
-  wooomni.ender.exempt:
-    default: false

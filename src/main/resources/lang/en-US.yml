@@ -35,13 +35,11 @@ vanish:
 ender:
   usage: "&eUsage: /ender [player]"
   opened: "&aOpened %player%'s ender chest."
-  exempt: "&cPlayer %player% has exempt permission, cannot view their ender chest."
   no-edit: "&cYou don't have edit permission."
   opened-self: "&aOpened your ender chest."
 
 inv:
   usage: "&eUsage: /inv <player>"
-  exempt: "&cPlayer %player% has exempt permission, cannot view their inventory."
   no-edit: "&cYou don't have edit permission."
   player-offline: "&cPlayer %player% is offline."
   copied: "&aCopied %player%'s inventory contents."
@@ -53,7 +51,6 @@ inv:
 
 inventory:
   player-not-found: "&cPlayer not found: %player%"
-  exempt: "&cPlayer %player% has exempt permission, cannot view their inventory."
   inv-opened: "&aViewing %player%'s inventory."
   ender-opened: "&aViewing %player%'s ender chest."
   copied: "&aCopied %player%'s inventory contents."

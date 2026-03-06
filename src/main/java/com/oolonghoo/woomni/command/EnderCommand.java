@@ -69,11 +69,6 @@ public class EnderCommand implements CommandExecutor, TabCompleter {
         Player onlineTarget = Bukkit.getPlayer(targetName);
         
         if (onlineTarget != null) {
-            if (onlineTarget.hasPermission(Perms.Inventory.ENDER_EXEMPT) && !viewer.hasPermission(Perms.Inventory.ENDER_EXEMPT)) {
-                viewer.sendMessage(msg.getWithPrefix("ender.exempt", "player", onlineTarget.getName()));
-                return true;
-            }
-            
             openEnderChest(viewer, onlineTarget, onlineTarget.getUniqueId(), onlineTarget.getName());
         } else {
             OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetName);

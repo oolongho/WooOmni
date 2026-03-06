@@ -35,13 +35,11 @@ vanish:
 ender:
   usage: "&e用法: /ender [玩家]"
   opened: "&a已打开 %player% 的末影箱。"
-  exempt: "&c玩家 %player% 拥有豁免权限，无法查看其末影箱。"
   no-edit: "&c你没有编辑权限。"
   opened-self: "&a已打开你的末影箱。"
 
 inv:
   usage: "&e用法: /inv <玩家>"
-  exempt: "&c玩家 %player% 拥有豁免权限，无法查看其背包。"
   no-edit: "&c你没有编辑权限。"
   player-offline: "&c玩家 %player% 已离线。"
   copied: "&a已复制 %player% 的背包内容。"
@@ -53,7 +51,6 @@ inv:
 
 inventory:
   player-not-found: "&c玩家未找到: %player%"
-  exempt: "&c玩家 %player% 拥有豁免权限，无法查看其背包。"
   inv-opened: "&a正在查看 %player% 的背包。"
   ender-opened: "&a正在查看 %player% 的末影箱。"
   copied: "&a已复制 %player% 的背包内容。"

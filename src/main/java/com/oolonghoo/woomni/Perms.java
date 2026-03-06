@@ -50,10 +50,8 @@ public final class Perms {
         private static final String BASE = PREFIX + ".inv";
         public static final String INV_VIEW = BASE + ".view";
         public static final String INV_EDIT = BASE + ".edit";
-        public static final String INV_EXEMPT = BASE + ".exempt";
         public static final String ENDER_VIEW = PREFIX + ".ender.view";
         public static final String ENDER_EDIT = PREFIX + ".ender.edit";
-        public static final String ENDER_EXEMPT = PREFIX + ".ender.exempt";
         
         private Inventory() {
         }
