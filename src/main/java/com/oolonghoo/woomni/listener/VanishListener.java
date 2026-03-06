@@ -49,10 +49,7 @@ public class VanishListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         
-        VanishData data = dataManager.getIfPresent(uuid);
-        if (data == null) {
-            return;
-        }
+        VanishData data = dataManager.getVanishData(uuid);
         
         if (data.isVanished() || data.isAutoVanishJoin()) {
             if (!data.shouldShowJoinMessage()) {

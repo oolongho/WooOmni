@@ -245,71 +245,116 @@ public class OfflinePlayerDataUtil {
         // 在 1.20.5+ 中，方法签名已更改
         try {
             methodSaveItemStack = itemStackClass.getMethod("save", nbtTagCompoundClass);
-            methodLoadItemStack = itemStackClass.getMethod("a", nbtTagCompoundClass);
         } catch (NoSuchMethodException e) {
-            // 尝试其他方法名（不同版本的映射）
-            try {
-                methodSaveItemStack = itemStackClass.getMethod("b", nbtTagCompoundClass);
-                methodLoadItemStack = itemStackClass.getMethod("a", nbtTagCompoundClass);
-            } catch (NoSuchMethodException e2) {
-                // 再尝试其他可能的名称
-                for (Method m : itemStackClass.getMethods()) {
-                    if (m.getName().equals("save") && m.getParameterCount() == 1 && 
-                        m.getParameterTypes()[0] == nbtTagCompoundClass) {
-                        methodSaveItemStack = m;
-                    }
-                    if (m.getParameterCount() == 1 && m.getParameterTypes()[0] == nbtTagCompoundClass &&
-                        m.getReturnType() == itemStackClass) {
-                        methodLoadItemStack = m;
-                    }
-                }
-                if (methodSaveItemStack == null || methodLoadItemStack == null) {
-                    throw new NoSuchMethodException("无法找到 ItemStack 的 save/load 方法");
+            for (Method m : itemStackClass.getMethods()) {
+                if (m.getName().equals("save") && m.getParameterCount() == 1 && 
+                    m.getParameterTypes()[0] == nbtTagCompoundClass) {
+                    methodSaveItemStack = m;
+                    break;
                 }
             }
         }
         
-        // NBT Compound 方法
-        methodNbtCompoundSetByte = nbtTagCompoundClass.getMethod("a", String.class, byte.class);
-        methodNbtCompoundSetString = nbtTagCompoundClass.getMethod("a", String.class, String.class);
-        methodNbtCompoundSetInt = nbtTagCompoundClass.getMethod("a", String.class, int.class);
-        methodNbtCompoundSetBoolean = nbtTagCompoundClass.getMethod("a", String.class, boolean.class);
-        methodNbtCompoundGetByte = nbtTagCompoundClass.getMethod("f", String.class);
-        methodNbtCompoundGetString = nbtTagCompoundClass.getMethod("l", String.class);
-        methodNbtCompoundGetCompound = nbtTagCompoundClass.getMethod("p", String.class);
-        methodNbtCompoundGetList = nbtTagCompoundClass.getMethod("c", String.class, int.class);
-        methodNbtCompoundHasKey = nbtTagCompoundClass.getMethod("e", String.class);
+        if (methodSaveItemStack == null) {
+            throw new NoSuchMethodException("无法找到 ItemStack 的 save 方法");
+        }
         
-        // 尝试其他可能的方法名
-        try {
-            methodNbtCompoundGetByte = nbtTagCompoundClass.getMethod("getByte", String.class);
-        } catch (NoSuchMethodException ignored) {}
+        methodLoadItemStack = findLoadItemStackMethod();
         
-        try {
-            methodNbtCompoundGetString = nbtTagCompoundClass.getMethod("getString", String.class);
-        } catch (NoSuchMethodException ignored) {}
+        if (methodLoadItemStack == null) {
+            throw new NoSuchMethodException("无法找到 ItemStack 的 load 方法");
+        }
         
-        try {
-            methodNbtCompoundGetCompound = nbtTagCompoundClass.getMethod("getCompound", String.class);
-        } catch (NoSuchMethodException ignored) {}
-        
-        try {
-            methodNbtCompoundGetList = nbtTagCompoundClass.getMethod("getList", String.class, int.class);
-        } catch (NoSuchMethodException ignored) {}
+        loadNBTCompoundMethods();
+        loadNBTListMethods();
+        loadCompressedStreamToolsMethods();
+        loadCraftItemStackMethods();
+    }
+    
+    private Method findLoadItemStackMethod() {
+        for (Method m : itemStackClass.getMethods()) {
+            if (m.getParameterCount() == 1 && 
+                m.getParameterTypes()[0] == nbtTagCompoundClass &&
+                m.getReturnType() == itemStackClass) {
+                return m;
+            }
+        }
         
         try {
-            methodNbtCompoundHasKey = nbtTagCompoundClass.getMethod("hasKey", String.class);
-        } catch (NoSuchMethodException ignored) {}
+            return itemStackClass.getMethod("a", nbtTagCompoundClass);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+    
+    private void loadNBTCompoundMethods() throws NoSuchMethodException {
+        String[] setByteNames = {"a", "setByte"};
+        String[] setStringNames = {"a", "setString"};
+        String[] setIntNames = {"a", "setInt"};
+        String[] setBooleanNames = {"a", "setBoolean"};
+        String[] getByteNames = {"f", "getByte"};
+        String[] getStringNames = {"l", "getString"};
+        String[] getCompoundNames = {"p", "getCompound"};
+        String[] getListNames = {"c", "getList"};
+        String[] hasKeyNames = {"e", "hasKey"};
         
-        // NBT List 方法
+        methodNbtCompoundSetByte = findMethod(nbtTagCompoundClass, setByteNames, String.class, byte.class);
+        methodNbtCompoundSetString = findMethod(nbtTagCompoundClass, setStringNames, String.class, String.class);
+        methodNbtCompoundSetInt = findMethod(nbtTagCompoundClass, setIntNames, String.class, int.class);
+        methodNbtCompoundSetBoolean = findMethod(nbtTagCompoundClass, setBooleanNames, String.class, boolean.class);
+        methodNbtCompoundGetByte = findMethod(nbtTagCompoundClass, getByteNames, String.class);
+        methodNbtCompoundGetString = findMethod(nbtTagCompoundClass, getStringNames, String.class);
+        methodNbtCompoundGetCompound = findMethod(nbtTagCompoundClass, getCompoundNames, String.class);
+        methodNbtCompoundGetList = findMethod(nbtTagCompoundClass, getListNames, String.class, int.class);
+        methodNbtCompoundHasKey = findMethod(nbtTagCompoundClass, hasKeyNames, String.class);
+    }
+    
+    private Method findMethod(Class<?> clazz, String[] names, Class<?>... paramTypes) {
+        for (String name : names) {
+            try {
+                return clazz.getMethod(name, paramTypes);
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+        return null;
+    }
+    
+    private void loadNBTListMethods() throws NoSuchMethodException {
         methodNbtListSize = nbtTagListClass.getMethod("size");
         methodNbtListGet = nbtTagListClass.getMethod("get", int.class);
+    }
+    
+    private void loadCompressedStreamToolsMethods() throws NoSuchMethodException {
+        String[] readNames = {"a", "readNBT", "loadNBT"};
+        String[] writeNames = {"a", "writeNBT", "saveNBT"};
         
-        // NBT CompressedStreamTools 方法
-        methodCompressedStreamToolsRead = nbtCompressedStreamToolsClass.getMethod("a", DataInput.class);
-        methodCompressedStreamToolsWrite = nbtCompressedStreamToolsClass.getMethod("a", nbtTagCompoundClass, DataOutput.class);
+        methodCompressedStreamToolsRead = findMethod(nbtCompressedStreamToolsClass, readNames, DataInput.class);
+        methodCompressedStreamToolsWrite = findMethod(nbtCompressedStreamToolsClass, writeNames, nbtTagCompoundClass, DataOutput.class);
         
-        // CraftItemStack 方法
+        if (methodCompressedStreamToolsRead == null) {
+            for (Method m : nbtCompressedStreamToolsClass.getMethods()) {
+                if (m.getParameterCount() == 1 && 
+                    DataInput.class.isAssignableFrom(m.getParameterTypes()[0]) &&
+                    m.getReturnType() == nbtTagCompoundClass) {
+                    methodCompressedStreamToolsRead = m;
+                    break;
+                }
+            }
+        }
+        
+        if (methodCompressedStreamToolsWrite == null) {
+            for (Method m : nbtCompressedStreamToolsClass.getMethods()) {
+                if (m.getParameterCount() == 2 && 
+                    m.getParameterTypes()[0] == nbtTagCompoundClass &&
+                    DataOutput.class.isAssignableFrom(m.getParameterTypes()[1])) {
+                    methodCompressedStreamToolsWrite = m;
+                    break;
+                }
+            }
+        }
+    }
+    
+    private void loadCraftItemStackMethods() throws NoSuchMethodException {
         methodCraftItemStackAsNMSCopy = craftItemStackClass.getMethod("asNMSCopy", ItemStack.class);
         methodCraftItemStackAsBukkitCopy = craftItemStackClass.getMethod("asBukkitCopy", itemStackClass);
     }
