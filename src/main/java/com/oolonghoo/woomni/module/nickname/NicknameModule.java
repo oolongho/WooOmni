@@ -14,7 +14,9 @@ public class NicknameModule extends Module {
     private NicknameSettings settings;
     private NickDataManager dataManager;
     private NicknameExpansion expansion;
+    
     private boolean vaultEnabled;
+    private boolean playerPointsEnabled;
     
     public NicknameModule(WooOmni plugin) {
         super(plugin, "nickname");
@@ -28,13 +30,25 @@ public class NicknameModule extends Module {
         dataManager = new NickDataManager(plugin);
         dataManager.initialize();
         
+        vaultEnabled = false;
+        playerPointsEnabled = false;
+        
         if (settings.isEconomyEnabled()) {
-            vaultEnabled = VaultHook.setupEconomy();
-            if (!vaultEnabled) {
-                plugin.getLogger().warning("[nickname] Vault not found, economy features disabled");
+            String provider = settings.getEconomyProvider();
+            
+            if (provider.equals("vault")) {
+                vaultEnabled = VaultHook.setupEconomy();
+                if (!vaultEnabled) {
+                    plugin.getLogger().warning("[nickname] Vault not found, economy features disabled");
+                }
+            } else if (provider.equals("playerpoints")) {
+                playerPointsEnabled = PlayerPointsHook.setupPlayerPoints();
+                if (!playerPointsEnabled) {
+                    plugin.getLogger().warning("[nickname] PlayerPoints not found, economy features disabled");
+                }
+            } else {
+                plugin.getLogger().warning("[nickname] Unknown economy provider: " + provider);
             }
-        } else {
-            vaultEnabled = false;
         }
         
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -65,8 +79,14 @@ public class NicknameModule extends Module {
             settings.reload();
         }
         
-        if (settings.isEconomyEnabled() && !vaultEnabled) {
-            vaultEnabled = VaultHook.setupEconomy();
+        if (settings.isEconomyEnabled()) {
+            String provider = settings.getEconomyProvider();
+            
+            if (provider.equals("vault") && !vaultEnabled) {
+                vaultEnabled = VaultHook.setupEconomy();
+            } else if (provider.equals("playerpoints") && !playerPointsEnabled) {
+                playerPointsEnabled = PlayerPointsHook.setupPlayerPoints();
+            }
         }
         
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -82,10 +102,18 @@ public class NicknameModule extends Module {
     }
     
     public boolean isEconomyEnabled() {
-        return settings.isEconomyEnabled() && vaultEnabled;
+        if (!settings.isEconomyEnabled()) return false;
+        
+        String provider = settings.getEconomyProvider();
+        if (provider.equals("vault")) {
+            return vaultEnabled;
+        } else if (provider.equals("playerpoints")) {
+            return playerPointsEnabled;
+        }
+        return false;
     }
     
-    public double getSetCost(Player player) {
+    public int getSetCost(Player player) {
         if (!isEconomyEnabled()) return 0;
         
         boolean hasNickname = hasNickname(player.getUniqueId());
@@ -95,22 +123,43 @@ public class NicknameModule extends Module {
     public boolean canAfford(Player player) {
         if (!isEconomyEnabled()) return true;
         
-        double cost = getSetCost(player);
-        return VaultHook.hasEnough(player, cost);
+        int cost = getSetCost(player);
+        if (cost <= 0) return true;
+        
+        String provider = settings.getEconomyProvider();
+        if (provider.equals("vault")) {
+            return VaultHook.hasEnough(player, cost);
+        } else if (provider.equals("playerpoints")) {
+            return PlayerPointsHook.hasEnough(player, cost);
+        }
+        return true;
     }
     
     public boolean chargePlayer(Player player) {
         if (!isEconomyEnabled()) return true;
         
-        double cost = getSetCost(player);
+        int cost = getSetCost(player);
         if (cost <= 0) return true;
         
-        return VaultHook.withdraw(player, cost);
+        String provider = settings.getEconomyProvider();
+        if (provider.equals("vault")) {
+            return VaultHook.withdraw(player, cost);
+        } else if (provider.equals("playerpoints")) {
+            return PlayerPointsHook.takePoints(player, cost);
+        }
+        return true;
     }
     
-    public String formatCost(double amount) {
+    public String formatCost(int amount) {
         if (!isEconomyEnabled()) return "0";
-        return VaultHook.format(amount);
+        
+        String provider = settings.getEconomyProvider();
+        if (provider.equals("vault")) {
+            return VaultHook.format(amount);
+        } else if (provider.equals("playerpoints")) {
+            return PlayerPointsHook.format(amount);
+        }
+        return String.valueOf(amount);
     }
     
     public void setNickname(Player player, String nickname) {

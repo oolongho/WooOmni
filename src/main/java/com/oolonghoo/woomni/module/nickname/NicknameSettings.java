@@ -1,6 +1,5 @@
 package com.oolonghoo.woomni.module.nickname;
 
-import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.config.ConfigLoader;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -10,7 +9,6 @@ import java.util.regex.Pattern;
 
 public class NicknameSettings {
     
-    private final WooOmni plugin;
     private final ConfigLoader configLoader;
     
     private int maxLength;
@@ -25,11 +23,11 @@ public class NicknameSettings {
     private boolean changePlayerListName;
     
     private boolean economyEnabled;
-    private double firstSetCost;
-    private double changeCost;
+    private String economyProvider;
+    private int firstSetCost;
+    private int changeCost;
     
-    public NicknameSettings(WooOmni plugin) {
-        this.plugin = plugin;
+    public NicknameSettings(com.oolonghoo.woomni.WooOmni plugin) {
         this.configLoader = new ConfigLoader(plugin, "settings/nickname.yml");
     }
     
@@ -75,8 +73,9 @@ public class NicknameSettings {
         changePlayerListName = config.getBoolean("display.change-player-list-name", true);
         
         economyEnabled = config.getBoolean("economy.enabled", false);
-        firstSetCost = config.getDouble("economy.first-set-cost", 100.0);
-        changeCost = config.getDouble("economy.change-cost", 50.0);
+        economyProvider = config.getString("economy.provider", "vault").toLowerCase();
+        firstSetCost = config.getInt("economy.first-set-cost", 100);
+        changeCost = config.getInt("economy.change-cost", 50);
     }
     
     public int getMaxLength() {
@@ -129,11 +128,15 @@ public class NicknameSettings {
         return economyEnabled;
     }
     
-    public double getFirstSetCost() {
+    public String getEconomyProvider() {
+        return economyProvider;
+    }
+    
+    public int getFirstSetCost() {
         return firstSetCost;
     }
     
-    public double getChangeCost() {
+    public int getChangeCost() {
         return changeCost;
     }
     

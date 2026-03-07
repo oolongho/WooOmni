@@ -108,7 +108,7 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
         }
         
         if (!isSettingOthers && module.isEconomyEnabled()) {
-            double cost = module.getSetCost(target);
+            int cost = module.getSetCost(target);
             if (cost > 0) {
                 if (!module.canAfford(target)) {
                     msg.send(sender, "nickname.not-enough-money", "cost", module.formatCost(cost));
@@ -122,7 +122,7 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
         String processedNick = processNickname(nickname, target, module);
         
         if (!isSettingOthers && module.isEconomyEnabled()) {
-            double cost = module.getSetCost(target);
+            int cost = module.getSetCost(target);
             if (cost > 0 && !module.chargePlayer(target)) {
                 msg.send(sender, "nickname.payment-failed");
                 return true;

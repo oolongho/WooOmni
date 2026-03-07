@@ -17,6 +17,7 @@ repositories {
     maven { url = "https://repo.codemc.io/repository/maven-public/" }
     maven { url = "https://jitpack.io" }
     maven { url = "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
+    maven { url = "https://repo.rosewooddev.io/repository/public/" }
 }
 
 dependencies {
@@ -27,6 +28,7 @@ dependencies {
         exclude group: "org.bukkit", module: "bukkit"
     }
     compileOnly "me.clip:placeholderapi:2.11.6"
+    compileOnly "org.black_ixx:playerpoints:3.3.4-SNAPSHOT"
 }
 
 tasks.withType(JavaCompile).configureEach {

@@ -44,10 +44,18 @@ public class VaultHook {
         return economy.has(player, amount);
     }
     
+    public static boolean hasEnough(Player player, int amount) {
+        return hasEnough(player, (double) amount);
+    }
+    
     public static boolean withdraw(Player player, double amount) {
         if (!isEnabled()) return true;
         if (amount <= 0) return true;
         return economy.withdrawPlayer(player, amount).transactionSuccess();
+    }
+    
+    public static boolean withdraw(Player player, int amount) {
+        return withdraw(player, (double) amount);
     }
     
     public static boolean deposit(Player player, double amount) {
@@ -59,5 +67,9 @@ public class VaultHook {
     public static String format(double amount) {
         if (!isEnabled()) return String.format("%.2f", amount);
         return economy.format(amount);
+    }
+    
+    public static String format(int amount) {
+        return format((double) amount);
     }
 }

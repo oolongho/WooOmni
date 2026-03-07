@@ -126,7 +126,7 @@ public class NicknameAnvilGUI implements Listener {
                 player.sendMessage(validationResult);
             } else {
                 if (module.isEconomyEnabled()) {
-                    double cost = module.getSetCost(player);
+                    int cost = module.getSetCost(player);
                     if (cost > 0) {
                         if (!module.canAfford(player)) {
                             player.sendMessage(ChatColor.RED + "你没有足够的金币，需要 " + module.formatCost(cost));

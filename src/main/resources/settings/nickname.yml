@@ -35,10 +35,15 @@ display:
   # Change player's tab list name
   change-player-list-name: true
 
-# Economy settings (requires Vault)
+# Economy settings
 economy:
+  # Enable economy features
   enabled: false
+  # Economy provider: vault, playerpoints
+  # vault - Uses Vault economy (requires Vault + economy plugin)
+  # playerpoints - Uses PlayerPoints plugin
+  provider: vault
   # Cost for first-time nickname setup (0 = free)
-  first-set-cost: 100.0
+  first-set-cost: 100
   # Cost for changing nickname after first setup (0 = free)
-  change-cost: 50.0
+  change-cost: 50
