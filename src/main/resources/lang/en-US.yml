@@ -186,6 +186,8 @@ gui:
     toggle-no-mob-spawn: "No Mob Spawning"
     toggle-hide-join: "Hide Join Message"
     toggle-hide-quit: "Hide Quit Message"
+    toggle-bossbar: "BossBar Hint"
+    toggle-hide-tab: "Hide from Tab"
     toggle-auto-vanish: "Auto Vanish Join"
     button-close: "Close"
     status-enabled: "Enabled"

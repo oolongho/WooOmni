@@ -186,6 +186,8 @@ gui:
     toggle-no-mob-spawn: "不计入刷怪机制"
     toggle-hide-join: "隐藏登入消息"
     toggle-hide-quit: "隐藏登出消息"
+    toggle-bossbar: "BOSSBAR提示"
+    toggle-hide-tab: "Tab列表隐藏"
     toggle-auto-vanish: "自动隐身加入"
     button-close: "关闭"
     status-enabled: "已启用"

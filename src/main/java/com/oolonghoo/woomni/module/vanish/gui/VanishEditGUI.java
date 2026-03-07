@@ -63,8 +63,8 @@ public class VanishEditGUI implements InventoryHolder {
         inventory.setItem(19, createToggleItem(Material.SPAWNER, "gui.vanishedit.toggle-no-mob-spawn", data.shouldPreventMobSpawn()));
         inventory.setItem(20, createToggleItem(Material.PLAYER_HEAD, "gui.vanishedit.toggle-hide-join", !data.shouldShowJoinMessage()));
         inventory.setItem(21, createToggleItem(Material.PLAYER_HEAD, "gui.vanishedit.toggle-hide-quit", !data.shouldShowQuitMessage()));
-        inventory.setItem(22, createToggleItem(Material.DRAGON_BREATH, "BOSSBAR提示", data.isBossbarEnabled()));
-        inventory.setItem(23, createToggleItem(Material.ENDER_EYE, "Tab列表隐藏", data.shouldHideFromTab()));
+        inventory.setItem(22, createToggleItem(Material.DRAGON_BREATH, "gui.vanishedit.toggle-bossbar", data.isBossbarEnabled()));
+        inventory.setItem(23, createToggleItem(Material.ENDER_EYE, "gui.vanishedit.toggle-hide-tab", data.shouldHideFromTab()));
         inventory.setItem(24, createToggleItem(Material.ENDER_PEARL, "gui.vanishedit.toggle-auto-vanish", data.isAutoVanishJoin()));
         
         ItemStack closeItem = new ItemStack(Material.BARRIER);
