@@ -3,6 +3,7 @@ package com.oolonghoo.woomni.module.nickname.gui;
 import com.oolonghoo.woomni.Perms;
 import com.oolonghoo.woomni.module.nickname.NicknameModule;
 import com.oolonghoo.woomni.module.nickname.NicknameSettings;
+import com.oolonghoo.woomni.util.GUILocale;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -47,14 +48,16 @@ public class NicknameAnvilGUI implements Listener {
     public void open() {
         InventoryView view = player.openAnvil(null, true);
         if (view == null) {
-            player.sendMessage(ChatColor.RED + "无法打开铁砧菜单");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                GUILocale.get("gui.nickname-anvil.open-failed")));
             return;
         }
         
         this.inventory = view.getTopInventory();
         if (!(this.inventory instanceof AnvilInventory)) {
             player.closeInventory();
-            player.sendMessage(ChatColor.RED + "无法打开铁砧菜单");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                GUILocale.get("gui.nickname-anvil.open-failed")));
             return;
         }
         
@@ -65,7 +68,7 @@ public class NicknameAnvilGUI implements Listener {
         if (currentNickname != null && !currentNickname.isEmpty()) {
             meta.setDisplayName(currentNickname);
         } else {
-            meta.setDisplayName(ChatColor.GRAY + "输入昵称...");
+            meta.setDisplayName(ChatColor.GRAY + GUILocale.get("gui.nickname-anvil.hint-text"));
         }
         inputItem.setItemMeta(meta);
         anvilInventory.setItem(0, inputItem);
@@ -117,9 +120,10 @@ public class NicknameAnvilGUI implements Listener {
         if (processed) return;
         processed = true;
         
-        if (newNickname.isEmpty() || newNickname.equals(ChatColor.GRAY + "输入昵称...")) {
+        if (newNickname.isEmpty() || newNickname.equals(ChatColor.GRAY + GUILocale.get("gui.nickname-anvil.hint-text"))) {
             module.clearNickname(player, player);
-            player.sendMessage(ChatColor.GREEN + "你的昵称已清除");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                GUILocale.get("gui.nickname-anvil.cleared")));
         } else {
             String validationResult = validateNickname(newNickname);
             if (validationResult != null) {
@@ -129,22 +133,26 @@ public class NicknameAnvilGUI implements Listener {
                     int cost = module.getSetCost(player);
                     if (cost > 0) {
                         if (!module.canAfford(player)) {
-                            player.sendMessage(ChatColor.RED + "你没有足够的金币，需要 " + module.formatCost(cost));
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                                GUILocale.get("gui.nickname-anvil.not-enough-money", "cost", module.formatCost(cost))));
                             player.closeInventory();
                             return;
                         }
                         if (!module.chargePlayer(player)) {
-                            player.sendMessage(ChatColor.RED + "支付失败，请稍后重试");
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                                GUILocale.get("gui.nickname-anvil.payment-failed")));
                             player.closeInventory();
                             return;
                         }
-                        player.sendMessage(ChatColor.YELLOW + "已扣除 " + module.formatCost(cost));
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                            GUILocale.get("gui.nickname-anvil.charged", "cost", module.formatCost(cost))));
                     }
                 }
                 
                 String processedNick = processNickname(newNickname);
                 module.setNickname(player, processedNick, player);
-                player.sendMessage(ChatColor.GREEN + "你的昵称已设置为: " + processedNick);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                    GUILocale.get("gui.nickname-anvil.set-success", "nickname", processedNick)));
             }
         }
         
@@ -157,24 +165,26 @@ public class NicknameAnvilGUI implements Listener {
         String stripped = ChatColor.stripColor(nickname.replace("&", "§"));
         
         if (!player.hasPermission(Perms.Nickname.BYPASS_LENGTH)) {
-            if (stripped.length() < settings.getMinLength()) {
-                return ChatColor.RED + "昵称长度必须在 " + settings.getMinLength() + " 到 " + settings.getMaxLength() + " 个字符之间";
-            }
-            if (stripped.length() > settings.getMaxLength()) {
-                return ChatColor.RED + "昵称长度必须在 " + settings.getMinLength() + " 到 " + settings.getMaxLength() + " 个字符之间";
+            if (stripped.length() < settings.getMinLength() || stripped.length() > settings.getMaxLength()) {
+                return ChatColor.translateAlternateColorCodes('&', 
+                    GUILocale.get("gui.nickname-anvil.invalid-length", 
+                        "min", String.valueOf(settings.getMinLength()), 
+                        "max", String.valueOf(settings.getMaxLength())));
             }
         }
         
         if (!player.hasPermission(Perms.Nickname.BYPASS_REGEX)) {
             Pattern regex = settings.getNickRegex();
             if (!regex.matcher(stripped).matches()) {
-                return ChatColor.RED + "昵称包含非法字符";
+                return ChatColor.translateAlternateColorCodes('&', 
+                    GUILocale.get("gui.nickname-anvil.invalid-chars"));
             }
         }
         
         if (!player.hasPermission(Perms.Nickname.BYPASS_BLACKLIST)) {
             if (settings.isBlacklisted(nickname)) {
-                return ChatColor.RED + "该昵称被禁止使用";
+                return ChatColor.translateAlternateColorCodes('&', 
+                    GUILocale.get("gui.nickname-anvil.blacklisted"));
             }
         }
         
@@ -186,12 +196,14 @@ public class NicknameAnvilGUI implements Listener {
             if (onlineNick != null) {
                 String strippedOnline = ChatColor.stripColor(onlineNick.replace("&", "§"));
                 if (lowerNick.equals(strippedOnline.toLowerCase())) {
-                    return ChatColor.RED + "该昵称已被其他玩家使用";
+                    return ChatColor.translateAlternateColorCodes('&', 
+                        GUILocale.get("gui.nickname-anvil.already-used"));
                 }
             }
             
             if (lowerNick.equals(online.getName().toLowerCase())) {
-                return ChatColor.RED + "该昵称已被其他玩家使用";
+                return ChatColor.translateAlternateColorCodes('&', 
+                    GUILocale.get("gui.nickname-anvil.already-used"));
             }
         }
         

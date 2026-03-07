@@ -38,6 +38,8 @@ public class WooOmni extends JavaPlugin {
         messageManager = new MessageManager(this);
         messageManager.initialize();
         
+        com.oolonghoo.woomni.util.GUILocale.init(this);
+        
         storageManager = new StorageManager(this);
         storageManager.initialize();
         

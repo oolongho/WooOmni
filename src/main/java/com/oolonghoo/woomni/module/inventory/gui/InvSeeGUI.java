@@ -1,8 +1,10 @@
 package com.oolonghoo.woomni.module.inventory.gui;
 
+import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.module.inventory.InventorySettings;
 import com.oolonghoo.woomni.module.inventory.OfflinePlayerDataUtil;
 import com.oolonghoo.woomni.util.EconomyUtil;
+import com.oolonghoo.woomni.util.GUILocale;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -78,9 +80,11 @@ public class InvSeeGUI implements InventoryHolder {
         
         String title;
         if (viewType == ViewType.ENDER_CHEST) {
-            title = isOnline ? "末影箱 - " + targetName : "末影箱 (离线) - " + targetName;
+            String key = isOnline ? "gui.invsee.title-ender" : "gui.invsee.title-ender-offline";
+            title = GUILocale.get(key, "player", targetName);
         } else {
-            title = isOnline ? "背包 - " + targetName : "背包 (离线) - " + targetName;
+            String key = isOnline ? "gui.invsee.title-inventory" : "gui.invsee.title-inventory-offline";
+            title = GUILocale.get(key, "player", targetName);
         }
         this.inventory = Bukkit.createInventory(this, GUI_SIZE, Component.text(title));
         
@@ -180,19 +184,31 @@ public class InvSeeGUI implements InventoryHolder {
         ItemStack toggleButton;
         
         if (viewType == ViewType.INVENTORY) {
-            copyButton = createButton(Material.CHEST, "复制背包", NamedTextColor.GREEN, 
-                "点击复制目标玩家的背包内容到你的背包");
-            clearButton = createButton(Material.BARRIER, "清空背包", NamedTextColor.RED,
-                "点击清空目标玩家的背包");
-            toggleButton = createButton(Material.ENDER_CHEST, "查看末影箱", NamedTextColor.LIGHT_PURPLE,
-                "点击切换到末影箱视图");
+            copyButton = createButton(Material.CHEST, 
+                GUILocale.get("gui.invsee.button-copy-inv"), 
+                NamedTextColor.GREEN, 
+                GUILocale.get("gui.invsee.button-copy-inv-desc"));
+            clearButton = createButton(Material.BARRIER, 
+                GUILocale.get("gui.invsee.button-clear-inv"), 
+                NamedTextColor.RED,
+                GUILocale.get("gui.invsee.button-clear-inv-desc"));
+            toggleButton = createButton(Material.ENDER_CHEST, 
+                GUILocale.get("gui.invsee.button-view-ender"), 
+                NamedTextColor.LIGHT_PURPLE,
+                GUILocale.get("gui.invsee.button-view-ender-desc"));
         } else {
-            copyButton = createButton(Material.ENDER_CHEST, "复制末影箱", NamedTextColor.GREEN,
-                "点击复制目标玩家的末影箱内容到你的背包");
-            clearButton = createButton(Material.BARRIER, "清空末影箱", NamedTextColor.RED,
-                "点击清空目标玩家的末影箱");
-            toggleButton = createButton(Material.CHEST, "查看背包", NamedTextColor.YELLOW,
-                "点击切换到背包视图");
+            copyButton = createButton(Material.ENDER_CHEST, 
+                GUILocale.get("gui.invsee.button-copy-ender"), 
+                NamedTextColor.GREEN,
+                GUILocale.get("gui.invsee.button-copy-ender-desc"));
+            clearButton = createButton(Material.BARRIER, 
+                GUILocale.get("gui.invsee.button-clear-ender"), 
+                NamedTextColor.RED,
+                GUILocale.get("gui.invsee.button-clear-ender-desc"));
+            toggleButton = createButton(Material.CHEST, 
+                GUILocale.get("gui.invsee.button-view-inv"), 
+                NamedTextColor.YELLOW,
+                GUILocale.get("gui.invsee.button-view-inv-desc"));
         }
         
         inventory.setItem(SLOT_COPY, copyButton);
@@ -209,28 +225,28 @@ public class InvSeeGUI implements InventoryHolder {
         
         ItemStack infoButton = new ItemStack(Material.BOOK);
         ItemMeta meta = infoButton.getItemMeta();
-        meta.displayName(Component.text("玩家信息", NamedTextColor.AQUA));
+        meta.displayName(GUILocale.getComponent("gui.invsee.info-title", NamedTextColor.AQUA));
         
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text(""));
-        lore.add(Component.text("玩家: ", NamedTextColor.GRAY)
+        lore.add(Component.text(GUILocale.get("gui.invsee.player") + ": ", NamedTextColor.GRAY)
             .append(Component.text(targetName, NamedTextColor.WHITE)));
-        lore.add(Component.text("UUID: ", NamedTextColor.GRAY)
+        lore.add(Component.text(GUILocale.get("gui.invsee.uuid") + ": ", NamedTextColor.GRAY)
             .append(Component.text(targetUUID.toString(), NamedTextColor.DARK_GRAY)));
-        lore.add(Component.text("状态: ", NamedTextColor.GRAY)
-            .append(Component.text(isOnline ? "在线" : "离线", isOnline ? NamedTextColor.GREEN : NamedTextColor.RED)));
+        lore.add(Component.text(GUILocale.get("gui.invsee.status") + ": ", NamedTextColor.GRAY)
+            .append(Component.text(isOnline ? GUILocale.get("gui.invsee.online") : GUILocale.get("gui.invsee.offline"), isOnline ? NamedTextColor.GREEN : NamedTextColor.RED)));
         
         if (onlinePlayer != null) {
             lore.add(Component.text(""));
-            lore.add(Component.text("生命值: ", NamedTextColor.GRAY)
+            lore.add(Component.text(GUILocale.get("gui.invsee.health") + ": ", NamedTextColor.GRAY)
                 .append(Component.text(String.format("%.1f/%.1f", onlinePlayer.getHealth(), onlinePlayer.getMaxHealth()), NamedTextColor.RED)));
-            lore.add(Component.text("饥饿值: ", NamedTextColor.GRAY)
+            lore.add(Component.text(GUILocale.get("gui.invsee.hunger") + ": ", NamedTextColor.GRAY)
                 .append(Component.text(String.format("%d/20", onlinePlayer.getFoodLevel()), NamedTextColor.YELLOW)));
-            lore.add(Component.text("经验等级: ", NamedTextColor.GRAY)
+            lore.add(Component.text(GUILocale.get("gui.invsee.level") + ": ", NamedTextColor.GRAY)
                 .append(Component.text(String.valueOf(onlinePlayer.getLevel()), NamedTextColor.GREEN)));
-            lore.add(Component.text("游戏模式: ", NamedTextColor.GRAY)
+            lore.add(Component.text(GUILocale.get("gui.invsee.gamemode") + ": ", NamedTextColor.GRAY)
                 .append(Component.text(onlinePlayer.getGameMode().name(), NamedTextColor.AQUA)));
-            lore.add(Component.text("位置: ", NamedTextColor.GRAY)
+            lore.add(Component.text(GUILocale.get("gui.invsee.location") + ": ", NamedTextColor.GRAY)
                 .append(Component.text(String.format("%s (%.0f, %.0f, %.0f)", 
                     onlinePlayer.getWorld().getName(),
                     onlinePlayer.getLocation().getX(),
@@ -248,65 +264,59 @@ public class InvSeeGUI implements InventoryHolder {
         
         ItemStack dataButton = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = dataButton.getItemMeta();
-        meta.displayName(Component.text("玩家数据", NamedTextColor.LIGHT_PURPLE));
+        meta.displayName(GUILocale.getComponent("gui.invsee.data-title", NamedTextColor.LIGHT_PURPLE));
         
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text(""));
         
-        // IP地址
         Player onlinePlayer = offlinePlayer.getPlayer();
         if (onlinePlayer != null) {
             String ip = onlinePlayer.getAddress() != null ? 
-                onlinePlayer.getAddress().getAddress().getHostAddress() : "未知";
-            lore.add(Component.text("IP地址: ", NamedTextColor.GRAY)
+                onlinePlayer.getAddress().getAddress().getHostAddress() : GUILocale.get("gui.invsee.unknown");
+            lore.add(Component.text(GUILocale.get("gui.invsee.ip-address") + ": ", NamedTextColor.GRAY)
                 .append(Component.text(ip, NamedTextColor.WHITE)));
         } else {
-            lore.add(Component.text("IP地址: ", NamedTextColor.GRAY)
-                .append(Component.text("离线", NamedTextColor.DARK_GRAY)));
+            lore.add(Component.text(GUILocale.get("gui.invsee.ip-address") + ": ", NamedTextColor.GRAY)
+                .append(Component.text(GUILocale.get("gui.invsee.ip-offline"), NamedTextColor.DARK_GRAY)));
         }
         
-        // 首次加入时间
         long firstPlayed = offlinePlayer.getFirstPlayed();
         if (firstPlayed > 0) {
             String firstJoin = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date(firstPlayed));
-            lore.add(Component.text("首次加入: ", NamedTextColor.GRAY)
+            lore.add(Component.text(GUILocale.get("gui.invsee.first-join") + ": ", NamedTextColor.GRAY)
                 .append(Component.text(firstJoin, NamedTextColor.WHITE)));
         }
         
-        // 最后在线时间
         long lastPlayed = offlinePlayer.getLastPlayed();
         if (lastPlayed > 0) {
             String lastSeen = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date(lastPlayed));
-            lore.add(Component.text("最后在线: ", NamedTextColor.GRAY)
+            lore.add(Component.text(GUILocale.get("gui.invsee.last-seen") + ": ", NamedTextColor.GRAY)
                 .append(Component.text(lastSeen, NamedTextColor.WHITE)));
         }
         
-        // 游戏时长 (以tick为单位，转换为小时)
         int playTimeTicks = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE);
         int playTimeHours = playTimeTicks / (20 * 3600);
         int playTimeMinutes = (playTimeTicks % (20 * 3600)) / (20 * 60);
-        lore.add(Component.text("游戏时长: ", NamedTextColor.GRAY)
-            .append(Component.text(String.format("%d小时%d分钟", playTimeHours, playTimeMinutes), NamedTextColor.GREEN)));
+        String playtimeStr = GUILocale.get("gui.invsee.hours-minutes", "hours", String.valueOf(playTimeHours), "minutes", String.valueOf(playTimeMinutes));
+        lore.add(Component.text(GUILocale.get("gui.invsee.playtime") + ": ", NamedTextColor.GRAY)
+            .append(Component.text(playtimeStr, NamedTextColor.GREEN)));
         
-        // 死亡次数
         int deaths = offlinePlayer.getStatistic(Statistic.DEATHS);
-        lore.add(Component.text("死亡次数: ", NamedTextColor.GRAY)
+        lore.add(Component.text(GUILocale.get("gui.invsee.deaths") + ": ", NamedTextColor.GRAY)
             .append(Component.text(String.valueOf(deaths), NamedTextColor.RED)));
         
-        // 余额 (如果有Vault)
         if (EconomyUtil.hasVault()) {
             String vaultBalance = EconomyUtil.getVaultBalanceFormatted(targetUUID);
             if (vaultBalance != null) {
-                lore.add(Component.text("金币: ", NamedTextColor.GRAY)
+                lore.add(Component.text(GUILocale.get("gui.invsee.money") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(vaultBalance, NamedTextColor.GOLD)));
             }
         }
         
-        // 点券 (如果有PlayerPoints)
         if (EconomyUtil.hasPlayerPoints()) {
             String points = EconomyUtil.getPlayerPointsFormatted(targetUUID);
             if (points != null) {
-                lore.add(Component.text("点券: ", NamedTextColor.GRAY)
+                lore.add(Component.text(GUILocale.get("gui.invsee.points") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(points, NamedTextColor.LIGHT_PURPLE)));
             }
         }
@@ -330,26 +340,18 @@ public class InvSeeGUI implements InventoryHolder {
     private void setupArmor() {
         if (armorContents[3] != null) {
             inventory.setItem(SLOT_HELMET, armorContents[3].clone());
-        } else {
-            inventory.setItem(SLOT_HELMET, createEmptySlot("头盔"));
         }
         
         if (armorContents[2] != null) {
             inventory.setItem(SLOT_CHESTPLATE, armorContents[2].clone());
-        } else {
-            inventory.setItem(SLOT_CHESTPLATE, createEmptySlot("胸甲"));
         }
         
         if (armorContents[1] != null) {
             inventory.setItem(SLOT_LEGGINGS, armorContents[1].clone());
-        } else {
-            inventory.setItem(SLOT_LEGGINGS, createEmptySlot("护腿"));
         }
         
         if (armorContents[0] != null) {
             inventory.setItem(SLOT_BOOTS, armorContents[0].clone());
-        } else {
-            inventory.setItem(SLOT_BOOTS, createEmptySlot("靴子"));
         }
         
         if (offHandItem != null && offHandItem.getType() != Material.AIR) {
@@ -397,14 +399,6 @@ public class InvSeeGUI implements InventoryHolder {
                 inventory.setItem(guiSlot, enderChestContents[i].clone());
             }
         }
-    }
-    
-    private ItemStack createEmptySlot(String name) {
-        ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(name, NamedTextColor.GRAY));
-        item.setItemMeta(meta);
-        return item;
     }
     
     public static boolean isButtonSlot(int slot) {

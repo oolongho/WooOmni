@@ -4,6 +4,7 @@ import com.oolonghoo.woomni.module.vanish.VanishData;
 import com.oolonghoo.woomni.module.vanish.VanishDataManager;
 import com.oolonghoo.woomni.module.vanish.VanishHider;
 import com.oolonghoo.woomni.module.vanish.VanishBossBar;
+import com.oolonghoo.woomni.util.GUILocale;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -37,7 +38,8 @@ public class VanishEditGUI implements InventoryHolder {
         this.bossBar = bossBar;
         this.targetUUID = target.getUniqueId();
         this.targetName = target.getName();
-        this.inventory = Bukkit.createInventory(this, 45, Component.text("隐身设置 - " + targetName));
+        this.inventory = Bukkit.createInventory(this, 45, 
+            GUILocale.getComponent("gui.vanishedit.title", NamedTextColor.DARK_PURPLE, "player", targetName));
         
         setupItems();
     }
@@ -50,24 +52,24 @@ public class VanishEditGUI implements InventoryHolder {
         
         inventory.setItem(4, createPlayerHead());
         
-        inventory.setItem(10, createToggleItem(Material.LIME_DYE, "隐身状态", data.isVanished()));
-        inventory.setItem(11, createToggleItem(Material.GOLDEN_APPLE, "夜视效果", data.hasNightVision()));
-        inventory.setItem(12, createToggleItem(Material.CHEST, "禁止拾起物品", !data.canPickupItems()));
-        inventory.setItem(13, createToggleItem(Material.SHIELD, "禁止受伤", !data.canTakeDamage()));
-        inventory.setItem(14, createToggleItem(Material.DIAMOND_SWORD, "禁止攻击", !data.canDamageOthers()));
-        inventory.setItem(15, createToggleItem(Material.ANVIL, "禁用物理碰撞", !data.hasPhysicalCollision()));
-        inventory.setItem(16, createToggleItem(Material.ENDER_CHEST, "静默开箱", data.hasSilentChest()));
+        inventory.setItem(10, createToggleItem(Material.LIME_DYE, "gui.vanishedit.toggle-vanish", data.isVanished()));
+        inventory.setItem(11, createToggleItem(Material.GOLDEN_APPLE, "gui.vanishedit.toggle-night-vision", data.hasNightVision()));
+        inventory.setItem(12, createToggleItem(Material.CHEST, "gui.vanishedit.toggle-no-pickup", !data.canPickupItems()));
+        inventory.setItem(13, createToggleItem(Material.SHIELD, "gui.vanishedit.toggle-no-damage", !data.canTakeDamage()));
+        inventory.setItem(14, createToggleItem(Material.DIAMOND_SWORD, "gui.vanishedit.toggle-no-attack", !data.canDamageOthers()));
+        inventory.setItem(15, createToggleItem(Material.ANVIL, "gui.vanishedit.toggle-no-collision", !data.hasPhysicalCollision()));
+        inventory.setItem(16, createToggleItem(Material.ENDER_CHEST, "gui.vanishedit.toggle-silent-chest", data.hasSilentChest()));
         
-        inventory.setItem(19, createToggleItem(Material.SPAWNER, "不计入刷怪机制", data.shouldPreventMobSpawn()));
-        inventory.setItem(20, createToggleItem(Material.PLAYER_HEAD, "隐藏登入消息", !data.shouldShowJoinMessage()));
-        inventory.setItem(21, createToggleItem(Material.PLAYER_HEAD, "隐藏登出消息", !data.shouldShowQuitMessage()));
+        inventory.setItem(19, createToggleItem(Material.SPAWNER, "gui.vanishedit.toggle-no-mob-spawn", data.shouldPreventMobSpawn()));
+        inventory.setItem(20, createToggleItem(Material.PLAYER_HEAD, "gui.vanishedit.toggle-hide-join", !data.shouldShowJoinMessage()));
+        inventory.setItem(21, createToggleItem(Material.PLAYER_HEAD, "gui.vanishedit.toggle-hide-quit", !data.shouldShowQuitMessage()));
         inventory.setItem(22, createToggleItem(Material.DRAGON_BREATH, "BOSSBAR提示", data.isBossbarEnabled()));
         inventory.setItem(23, createToggleItem(Material.ENDER_EYE, "Tab列表隐藏", data.shouldHideFromTab()));
-        inventory.setItem(24, createToggleItem(Material.ENDER_PEARL, "自动隐身加入", data.isAutoVanishJoin()));
+        inventory.setItem(24, createToggleItem(Material.ENDER_PEARL, "gui.vanishedit.toggle-auto-vanish", data.isAutoVanishJoin()));
         
         ItemStack closeItem = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.displayName(Component.text("关闭", NamedTextColor.RED));
+        closeMeta.displayName(GUILocale.getComponent("gui.vanishedit.button-close", NamedTextColor.RED));
         closeItem.setItemMeta(closeMeta);
         inventory.setItem(40, closeItem);
     }
@@ -81,21 +83,19 @@ public class VanishEditGUI implements InventoryHolder {
         return head;
     }
     
-    private ItemStack createToggleItem(Material material, String name, boolean enabled) {
+    private ItemStack createToggleItem(Material material, String localeKey, boolean enabled) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         
-        if (enabled) {
-            meta.displayName(Component.text(name, NamedTextColor.GREEN));
-            List<Component> lore = new ArrayList<>();
-            lore.add(Component.text("状态: ", NamedTextColor.GRAY).append(Component.text("已启用", NamedTextColor.GREEN)));
-            meta.lore(lore);
-        } else {
-            meta.displayName(Component.text(name, NamedTextColor.RED));
-            List<Component> lore = new ArrayList<>();
-            lore.add(Component.text("状态: ", NamedTextColor.GRAY).append(Component.text("已禁用", NamedTextColor.RED)));
-            meta.lore(lore);
-        }
+        String name = GUILocale.get(localeKey);
+        String statusKey = enabled ? "gui.vanishedit.status-enabled" : "gui.vanishedit.status-disabled";
+        NamedTextColor statusColor = enabled ? NamedTextColor.GREEN : NamedTextColor.RED;
+        
+        meta.displayName(Component.text(name, statusColor));
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text(GUILocale.get("gui.vanishedit.status") + ": ", NamedTextColor.GRAY)
+            .append(Component.text(GUILocale.get(statusKey), statusColor)));
+        meta.lore(lore);
         
         item.setItemMeta(meta);
         return item;

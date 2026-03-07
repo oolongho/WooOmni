@@ -3,6 +3,7 @@ package com.oolonghoo.woomni.module.inventory.gui;
 import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.module.inventory.InventorySettings;
 import com.oolonghoo.woomni.module.inventory.OfflinePlayerDataUtil;
+import com.oolonghoo.woomni.util.GUILocale;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -59,13 +60,10 @@ public class EnderSeeGUI implements InventoryHolder {
         this.canEdit = canEdit;
         this.isOnline = onlineTarget != null;
         
-        // 创建5行GUI
-        String title = "末影箱 - " + targetName;
+        String titleKey = isOnline ? "gui.endersee.title" : "gui.endersee.title-offline";
+        String title = GUILocale.get(titleKey, "player", targetName);
         if (!canEdit) {
             title += " (仅查看)";
-        }
-        if (!isOnline) {
-            title = "末影箱 (离线) - " + targetName;
         }
         this.inventory = Bukkit.createInventory(this, 45, Component.text(title));
         
@@ -90,38 +88,33 @@ public class EnderSeeGUI implements InventoryHolder {
      * 设置功能按钮
      */
     private void setupButtons() {
-        // 复制按钮
         ItemStack copyButton = settings.getButtonItem("copy");
         if (copyButton == null) {
-            copyButton = createDefaultButton(Material.CHEST, "复制末影箱", NamedTextColor.GREEN);
+            copyButton = createDefaultButton(Material.CHEST, "gui.endersee.button-copy", NamedTextColor.GREEN);
         }
         inventory.setItem(SLOT_COPY, copyButton);
         
-        // 清空按钮
         ItemStack clearButton = settings.getButtonItem("clear");
         if (clearButton == null) {
-            clearButton = createDefaultButton(Material.BARRIER, "清空末影箱", NamedTextColor.RED);
+            clearButton = createDefaultButton(Material.BARRIER, "gui.endersee.button-clear", NamedTextColor.RED);
         }
         inventory.setItem(SLOT_CLEAR, clearButton);
         
-        // 切换按钮（切换到背包视图）
         ItemStack toggleButton = settings.getButtonItem("toggle");
         if (toggleButton == null) {
-            toggleButton = createDefaultButton(Material.LEVER, "查看背包", NamedTextColor.YELLOW);
+            toggleButton = createDefaultButton(Material.LEVER, "gui.endersee.button-view-inv", NamedTextColor.YELLOW);
         }
         inventory.setItem(SLOT_TOGGLE, toggleButton);
         
-        // 信息按钮
         ItemStack infoButton = settings.getButtonItem("info");
         if (infoButton == null) {
-            infoButton = createDefaultButton(Material.BOOK, "玩家信息", NamedTextColor.AQUA);
+            infoButton = createDefaultButton(Material.BOOK, "gui.endersee.button-info", NamedTextColor.AQUA);
         }
         inventory.setItem(SLOT_INFO, infoButton);
         
-        // 记录按钮
         ItemStack logButton = settings.getButtonItem("log");
         if (logButton == null) {
-            logButton = createDefaultButton(Material.WRITABLE_BOOK, "数据记录", NamedTextColor.LIGHT_PURPLE);
+            logButton = createDefaultButton(Material.WRITABLE_BOOK, "gui.endersee.button-log", NamedTextColor.LIGHT_PURPLE);
         }
         inventory.setItem(SLOT_LOG, logButton);
     }
@@ -186,10 +179,10 @@ public class EnderSeeGUI implements InventoryHolder {
     /**
      * 创建默认按钮
      */
-    private ItemStack createDefaultButton(Material material, String name, NamedTextColor color) {
+    private ItemStack createDefaultButton(Material material, String localeKey, NamedTextColor color) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(name, color));
+        meta.displayName(Component.text(GUILocale.get(localeKey), color));
         item.setItemMeta(meta);
         return item;
     }
@@ -232,39 +225,33 @@ public class EnderSeeGUI implements InventoryHolder {
      */
     private void handleCopy(Player viewer) {
         if (!canEdit) {
-            viewer.sendMessage(Component.text("你没有权限执行此操作。", NamedTextColor.RED));
+            viewer.sendMessage(Component.text(GUILocale.get("gui.endersee.no-permission"), NamedTextColor.RED));
             return;
         }
         
-        // 复制目标玩家的末影箱到查看者的末影箱
         if (onlineTarget != null) {
             ItemStack[] enderContents = onlineTarget.getEnderChest().getContents();
             viewer.getEnderChest().setContents(enderContents.clone());
-            viewer.sendMessage(Component.text("已复制 " + targetName + " 的末影箱内容到你的末影箱。", NamedTextColor.GREEN));
+            viewer.sendMessage(Component.text(GUILocale.get("gui.endersee.copied", "player", targetName), NamedTextColor.GREEN));
         } else {
-            viewer.sendMessage(Component.text("无法复制离线玩家的末影箱。", NamedTextColor.RED));
+            viewer.sendMessage(Component.text(GUILocale.get("gui.endersee.cannot-copy-offline"), NamedTextColor.RED));
         }
     }
     
-    /**
-     * 处理清空按钮
-     */
     private void handleClear(Player viewer) {
         if (!canEdit) {
-            viewer.sendMessage(Component.text("你没有权限执行此操作。", NamedTextColor.RED));
+            viewer.sendMessage(Component.text(GUILocale.get("gui.endersee.no-permission"), NamedTextColor.RED));
             return;
         }
         
-        // 清空目标玩家的末影箱
         if (onlineTarget != null) {
             onlineTarget.getEnderChest().clear();
-            // 更新GUI
             for (int i = ENDER_CHEST_START; i <= ENDER_CHEST_END; i++) {
                 inventory.setItem(i, null);
             }
-            viewer.sendMessage(Component.text("已清空 " + targetName + " 的末影箱。", NamedTextColor.GREEN));
+            viewer.sendMessage(Component.text(GUILocale.get("gui.endersee.cleared", "player", targetName), NamedTextColor.GREEN));
         } else {
-            viewer.sendMessage(Component.text("无法清空离线玩家的末影箱。", NamedTextColor.RED));
+            viewer.sendMessage(Component.text(GUILocale.get("gui.endersee.cannot-clear-offline"), NamedTextColor.RED));
         }
     }
     
@@ -281,7 +268,6 @@ public class EnderSeeGUI implements InventoryHolder {
      */
     private void handleInfo(Player viewer) {
         if (onlineTarget != null) {
-            // 显示在线玩家的实时状态
             double health = onlineTarget.getHealth();
             double maxHealth = onlineTarget.getMaxHealth();
             float exp = onlineTarget.getExp();
@@ -290,22 +276,22 @@ public class EnderSeeGUI implements InventoryHolder {
             float saturation = onlineTarget.getSaturation();
             
             List<Component> info = new ArrayList<>();
-            info.add(Component.text("========== 玩家信息 ==========", NamedTextColor.GOLD));
-            info.add(Component.text("玩家: ", NamedTextColor.GRAY)
+            info.add(Component.text(GUILocale.get("gui.endersee.info-header"), NamedTextColor.GOLD));
+            info.add(Component.text(GUILocale.get("gui.endersee.player") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(targetName, NamedTextColor.GREEN)));
-            info.add(Component.text("生命值: ", NamedTextColor.GRAY)
+            info.add(Component.text(GUILocale.get("gui.endersee.health") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(String.format("%.1f/%.1f", health, maxHealth), NamedTextColor.RED)));
-            info.add(Component.text("饥饿值: ", NamedTextColor.GRAY)
+            info.add(Component.text(GUILocale.get("gui.endersee.hunger") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(String.valueOf(foodLevel) + "/20", NamedTextColor.YELLOW)));
-            info.add(Component.text("饱和度: ", NamedTextColor.GRAY)
+            info.add(Component.text(GUILocale.get("gui.endersee.saturation") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(String.format("%.1f", saturation), NamedTextColor.YELLOW)));
-            info.add(Component.text("经验等级: ", NamedTextColor.GRAY)
+            info.add(Component.text(GUILocale.get("gui.endersee.level") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(String.valueOf(level), NamedTextColor.GREEN)));
-            info.add(Component.text("经验值: ", NamedTextColor.GRAY)
+            info.add(Component.text(GUILocale.get("gui.endersee.exp") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(String.format("%.1f%%", exp * 100), NamedTextColor.GREEN)));
-            info.add(Component.text("游戏模式: ", NamedTextColor.GRAY)
+            info.add(Component.text(GUILocale.get("gui.endersee.gamemode") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(onlineTarget.getGameMode().name(), NamedTextColor.AQUA)));
-            info.add(Component.text("位置: ", NamedTextColor.GRAY)
+            info.add(Component.text(GUILocale.get("gui.endersee.location") + ": ", NamedTextColor.GRAY)
                     .append(Component.text(String.format("%s (%.1f, %.1f, %.1f)", 
                             onlineTarget.getWorld().getName(), 
                             onlineTarget.getLocation().getX(), 
@@ -317,16 +303,12 @@ public class EnderSeeGUI implements InventoryHolder {
                 viewer.sendMessage(line);
             }
         } else {
-            viewer.sendMessage(Component.text("玩家 " + targetName + " 当前离线，无法获取实时信息。", NamedTextColor.YELLOW));
+            viewer.sendMessage(Component.text(GUILocale.get("gui.endersee.offline-info", "player", targetName), NamedTextColor.YELLOW));
         }
     }
     
-    /**
-     * 处理记录按钮
-     */
     private void handleLog(Player viewer) {
-        // 数据记录功能暂未实现
-        viewer.sendMessage(Component.text("此功能暂未实现", NamedTextColor.YELLOW));
+        viewer.sendMessage(Component.text(GUILocale.get("gui.endersee.feature-not-implemented"), NamedTextColor.YELLOW));
     }
     
     /**

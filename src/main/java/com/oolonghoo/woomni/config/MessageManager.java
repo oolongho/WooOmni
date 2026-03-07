@@ -162,6 +162,13 @@ public class MessageManager {
     }
     
     /**
+     * 获取原始字符串（不转换颜色代码）
+     */
+    public String getRaw(String key) {
+        return langConfig.getString(key, key);
+    }
+    
+    /**
      * 获取字符串列表（已转换颜色代码）
      */
     public List<String> getList(String key) {
