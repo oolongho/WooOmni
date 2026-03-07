@@ -23,6 +23,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     private final VanishEditCommand vanishEditCommand;
     private final InvCommand invCommand;
     private final EnderCommand enderCommand;
+    private final NicknameCommand nicknameCommand;
     
     public MainCommand(WooOmni plugin) {
         this.plugin = plugin;
@@ -35,6 +36,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         this.vanishEditCommand = new VanishEditCommand(plugin);
         this.invCommand = new InvCommand(plugin);
         this.enderCommand = new EnderCommand(plugin);
+        this.nicknameCommand = new NicknameCommand(plugin);
     }
     
     @Override
@@ -150,5 +152,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     
     public EnderCommand getEnderCommand() {
         return enderCommand;
+    }
+    
+    public NicknameCommand getNicknameCommand() {
+        return nicknameCommand;
     }
 }

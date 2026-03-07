@@ -25,6 +25,10 @@ public abstract class Module {
         return name;
     }
     
+    public WooOmni getPlugin() {
+        return plugin;
+    }
+    
     protected void log(String message) {
         plugin.getLogger().info("[" + name + "] " + message);
     }

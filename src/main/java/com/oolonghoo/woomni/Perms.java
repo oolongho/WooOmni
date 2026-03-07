@@ -56,4 +56,22 @@ public final class Perms {
         private Inventory() {
         }
     }
+    
+    public static final class Nickname {
+        private static final String BASE = PREFIX + ".nickname";
+        public static final String USE = BASE;
+        public static final String SET = BASE + ".set";
+        public static final String SET_OTHERS = BASE + ".set.others";
+        public static final String CLEAR = BASE + ".clear";
+        public static final String CLEAR_OTHERS = BASE + ".clear.others";
+        public static final String CHECK = BASE + ".check";
+        public static final String CHECK_OTHERS = BASE + ".check.others";
+        public static final String COLORS = BASE + ".colors";
+        public static final String BYPASS_LENGTH = BASE + ".bypass.length";
+        public static final String BYPASS_REGEX = BASE + ".bypass.regex";
+        public static final String BYPASS_BLACKLIST = BASE + ".bypass.blacklist";
+        
+        private Nickname() {
+        }
+    }
 }

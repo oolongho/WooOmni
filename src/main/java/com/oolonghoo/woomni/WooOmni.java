@@ -8,6 +8,7 @@ import com.oolonghoo.woomni.manager.ModuleManager;
 import com.oolonghoo.woomni.module.fly.FlyModule;
 import com.oolonghoo.woomni.module.god.GodModule;
 import com.oolonghoo.woomni.module.inventory.InventoryModule;
+import com.oolonghoo.woomni.module.nickname.NicknameModule;
 import com.oolonghoo.woomni.module.vanish.VanishModule;
 import com.oolonghoo.woomni.task.AutoSaveTask;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -68,6 +69,7 @@ public class WooOmni extends JavaPlugin {
         moduleManager.registerModule("god", () -> new GodModule(this));
         moduleManager.registerModule("vanish", () -> new VanishModule(this));
         moduleManager.registerModule("inventory", () -> new InventoryModule(this));
+        moduleManager.registerModule("nickname", () -> new NicknameModule(this));
     }
     
     private void registerCommands() {
@@ -98,6 +100,9 @@ public class WooOmni extends JavaPlugin {
         
         getCommand("ender").setExecutor(mainCommand.getEnderCommand());
         getCommand("ender").setTabCompleter(mainCommand.getEnderCommand());
+        
+        getCommand("nickname").setExecutor(mainCommand.getNicknameCommand());
+        getCommand("nickname").setTabCompleter(mainCommand.getNicknameCommand());
     }
     
     private void startAutoSave() {

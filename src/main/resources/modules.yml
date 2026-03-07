@@ -12,3 +12,6 @@ modules:
     
   inventory:
     enabled: true
+    
+  nickname:
+    enabled: true

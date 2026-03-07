@@ -48,6 +48,11 @@ commands:
     usage: /ender [player]
     permission: wooomni.ender.view
     aliases: [enderchest]
+  nickname:
+    description: Manage player nickname
+    usage: /nickname [set|clear|check] [args]
+    permission: wooomni.nickname
+    aliases: [nick]
 
 permissions:
   wooomni.use:
@@ -93,4 +98,26 @@ permissions:
   wooomni.ender.view:
     default: op
   wooomni.ender.edit:
+    default: op
+  wooomni.nickname:
+    default: true
+  wooomni.nickname.set:
+    default: true
+  wooomni.nickname.set.others:
+    default: op
+  wooomni.nickname.clear:
+    default: true
+  wooomni.nickname.clear.others:
+    default: op
+  wooomni.nickname.check:
+    default: true
+  wooomni.nickname.check.others:
+    default: op
+  wooomni.nickname.colors:
+    default: op
+  wooomni.nickname.bypass.length:
+    default: op
+  wooomni.nickname.bypass.regex:
+    default: op
+  wooomni.nickname.bypass.blacklist:
     default: op

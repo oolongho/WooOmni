@@ -15,13 +15,18 @@ repositories {
     mavenCentral()
     maven { url = "https://repo.papermc.io/repository/maven-public/" }
     maven { url = "https://repo.codemc.io/repository/maven-public/" }
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
 }
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
     compileOnly "com.zaxxer:HikariCP:5.1.0"
     compileOnly "com.google.guava:guava:33.0.0-jre"
-    // NBT-API 已移除，改用纯 NMS 反射实现
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
+        exclude group: "org.bukkit", module: "bukkit"
+    }
+    compileOnly "me.clip:placeholderapi:2.11.6"
 }
 
 tasks.withType(JavaCompile).configureEach {

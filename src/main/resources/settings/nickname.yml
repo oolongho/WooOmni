@@ -1,0 +1,44 @@
+# Nickname module configuration
+
+# Maximum nickname length (excluding color codes)
+max-length: 16
+
+# Minimum nickname length
+min-length: 1
+
+# Nickname prefix (displayed before the nickname)
+prefix: "~"
+
+# Allow color codes in nicknames
+allow-colors: true
+
+# Require permission (wooomni.nickname.colors) to use color codes
+color-permission: true
+
+# Regex pattern for allowed characters (applied to stripped nickname)
+# Default: letters, numbers, underscores, and Chinese characters
+regex: "[a-zA-Z0-9_\u4e00-\u9fa5]+"
+
+# Blacklisted words (case-insensitive, partial match)
+blacklist:
+  - "admin"
+  - "moderator"
+  - "owner"
+  - "staff"
+  - "console"
+
+# Direct display name modification (no PlaceholderAPI required)
+# When enabled, player's display name and tab list name will be changed directly
+display:
+  # Change player's display name (shown in chat)
+  change-display-name: true
+  # Change player's tab list name
+  change-player-list-name: true
+
+# Economy settings (requires Vault)
+economy:
+  enabled: false
+  # Cost for first-time nickname setup (0 = free)
+  first-set-cost: 100.0
+  # Cost for changing nickname after first setup (0 = free)
+  change-cost: 50.0
