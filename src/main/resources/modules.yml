@@ -1,6 +1,4 @@
 # WooOmni Module
-# Player data modules use database storage (sqlite/mysql)
-# Config modules always use YAML
 
 modules:
   fly:
