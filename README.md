@@ -15,6 +15,7 @@
 - **智能缓存**：Guava Cache 管理，自动过期回收
 - **自动保存**：定时保存数据，防止意外丢失
 - **脏数据检测**：仅保存变更的数据
+- **动态任务**：仅在需要时启动定时任务（如上帝模式氧气恢复）
 
 ### 🔐 安全特性
 - **细粒度权限**：完整的权限节点控制
@@ -24,6 +25,10 @@
 - **双存储支持**：SQLite / MySQL 自由切换
 - **HikariCP 连接池**：高性能数据库连接
 - **离线玩家支持**：支持查看和编辑离线玩家数据
+
+### 🌐 国际化支持
+- **多语言**：支持中文(zh-CN)和英文(en-US)
+- **完全可编辑**：所有游戏内文字均可通过语言文件自定义
 
 ## 环境
 
@@ -75,6 +80,18 @@
 | `/ender` | 打开自己的末影箱 | `wooomni.ender.view` |
 | `/ender <玩家>` `/enderchest <玩家>` | 查看玩家的末影箱 | `wooomni.ender.view` |
 
+### 昵称模块
+
+| 命令 | 描述 | 权限 |
+|------|------|------|
+| `/nickname` `/nick` | 打开昵称编辑铁砧GUI | `wooomni.nickname` |
+| `/nickname set <昵称>` | 设置自己的昵称 | `wooomni.nickname.set` |
+| `/nickname set <昵称> <玩家>` | 设置其他玩家的昵称 | `wooomni.nickname.set.others` |
+| `/nickname clear` | 清除自己的昵称 | `wooomni.nickname.clear` |
+| `/nickname clear <玩家>` | 清除其他玩家的昵称 | `wooomni.nickname.clear.others` |
+| `/nickname check` | 查看自己的昵称信息 | `wooomni.nickname.check` |
+| `/nickname check <玩家>` | 查看其他玩家的昵称信息 | `wooomni.nickname.check.others` |
+
 ## 模块功能
 
 ### 飞行模块 (Fly)
@@ -93,6 +110,7 @@
 | 伤害免疫 | 自动取消所有伤害事件 |
 | 饥饿保护 | 无敌时饥饿值不下降 |
 | 氧气保护 | 水下自动恢复氧气值 |
+| 动态任务 | 仅在有玩家开启上帝模式时运行氧气恢复任务 |
 
 ### 隐身模块 (Vanish)
 
@@ -117,7 +135,24 @@
 | 完整物品数据保存 | 使用 Paper API 保存附魔、Lore 等完整数据 |
 | 视图切换 | 背包/末影箱快速切换 |
 | 玩家信息 | 显示玩家详细数据（IP、在线时长、死亡次数等） |
+| 经济显示 | 显示玩家金币(Vault)和点券(PlayerPoints) |
 | 批量操作 | 复制、清空背包 |
+
+### 昵称模块 (Nickname)
+
+| 功能 | 描述 |
+|------|------|
+| 铁砧GUI编辑 | 通过铁砧界面直观编辑昵称 |
+| 颜色代码支持 | 支持使用 `&` 颜色代码 |
+| 颜色权限控制 | 可配置是否需要权限使用颜色 |
+| 长度限制 | 可配置最小/最大昵称长度 |
+| 正则验证 | 可配置允许的字符正则表达式 |
+| 黑名单 | 禁止使用的昵称列表 |
+| 唯一性检查 | 防止重复昵称 |
+| 经济系统 | 支持首次设置和修改两种不同费用 |
+| 多经济支持 | 支持 Vault 和 PlayerPoints 两种经济系统 |
+| PlaceholderAPI | 提供 `%wooomni_player_name%`、`%wooomni_player_nickname%`、`%wooomni_player_realname%` 变量 |
+| 直接显示 | 无需 PlaceholderAPI 即可修改聊天和 TAB 列表显示名 |
 
 ## 隐身设置GUI
 
@@ -188,6 +223,29 @@
 | `wooomni.ender.view` | 查看玩家末影箱 | op |
 | `wooomni.ender.edit` | 编辑玩家末影箱 | op |
 
+### 昵称权限
+
+| 权限 | 描述 | 默认 |
+|------|------|------|
+| `wooomni.nickname` | 使用昵称命令 | true |
+| `wooomni.nickname.set` | 设置自己的昵称 | true |
+| `wooomni.nickname.set.others` | 设置他人昵称 | op |
+| `wooomni.nickname.clear` | 清除自己的昵称 | true |
+| `wooomni.nickname.clear.others` | 清除他人昵称 | op |
+| `wooomni.nickname.check` | 查看自己的昵称信息 | true |
+| `wooomni.nickname.check.others` | 查看他人昵称信息 | op |
+| `wooomni.nickname.colors` | 使用颜色代码 | op |
+| `wooomni.nickname.bypass.length` | 绕过长度限制 | op |
+| `wooomni.nickname.bypass.regex` | 绕过正则验证 | op |
+| `wooomni.nickname.bypass.blacklist` | 绕过黑名单 | op |
+
+## 依赖
+
+| 插件 | 必需 | 描述 |
+|------|------|------|
+| PlaceholderAPI | 否 | 昵称变量支持 |
+| Vault | 否 | 经济系统支持（金币） |
+| PlayerPoints | 否 | 经济系统支持（点券） |
 
 ## API 使用示例
 
@@ -220,6 +278,11 @@ public void onGodChange(GodStatusChangeEvent event) {
 @EventHandler
 public void onVanishChange(VanishStatusChangeEvent event) {
     // 处理隐身状态变更
+}
+
+@EventHandler
+public void onNicknameChange(NicknameChangeEvent event) {
+    // 处理昵称变更
 }
 ```
 
