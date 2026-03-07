@@ -4,6 +4,7 @@ import com.oolonghoo.woomni.Perms;
 import com.oolonghoo.woomni.WooOmni;
 import com.oolonghoo.woomni.config.MessageManager;
 import com.oolonghoo.woomni.event.GodStatusChangeEvent;
+import com.oolonghoo.woomni.listener.GodListener;
 import com.oolonghoo.woomni.module.god.GodData;
 import com.oolonghoo.woomni.module.god.GodDataManager;
 import com.oolonghoo.woomni.module.god.GodModule;
@@ -133,6 +134,7 @@ public class GodCommand implements CommandExecutor, TabCompleter {
     private void toggleGod(Player player, CommandSender sender) {
         GodModule godModule = (GodModule) plugin.getModuleManager().getModule("god");
         GodDataManager dataManager = godModule.getDataManager();
+        GodListener listener = godModule.getListener();
         GodData data = dataManager.getGodData(player.getUniqueId());
         
         boolean oldState = player.isInvulnerable();
@@ -150,6 +152,12 @@ public class GodCommand implements CommandExecutor, TabCompleter {
         player.setInvulnerable(newState);
         data.setGodMode(newState);
         dataManager.saveGodData(player.getUniqueId());
+        
+        if (newState) {
+            listener.addGodPlayer(player.getUniqueId());
+        } else {
+            listener.removeGodPlayer(player.getUniqueId());
+        }
         
         if (sender.equals(player)) {
             if (newState) {

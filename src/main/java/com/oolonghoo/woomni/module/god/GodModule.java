@@ -50,4 +50,8 @@ public class GodModule extends Module {
     public GodDataManager getDataManager() {
         return dataManager;
     }
+    
+    public GodListener getListener() {
+        return listener;
+    }
 }

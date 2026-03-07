@@ -12,16 +12,20 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class GodListener implements Listener {
     
     private final WooOmni plugin;
     private final GodDataManager dataManager;
+    private final Set<UUID> godModePlayers = ConcurrentHashMap.newKeySet();
     private int oxygenTaskId = -1;
     
     public GodListener(WooOmni plugin, GodDataManager dataManager) {
         this.plugin = plugin;
         this.dataManager = dataManager;
-        startOxygenTask();
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -35,6 +39,8 @@ public class GodListener implements Listener {
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (player.isOnline()) {
                         player.setInvulnerable(true);
+                        godModePlayers.add(player.getUniqueId());
+                        startOxygenTaskIfNeeded();
                     }
                 });
             }
@@ -44,8 +50,11 @@ public class GodListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
         
-        GodData data = dataManager.getIfPresent(player.getUniqueId());
+        godModePlayers.remove(uuid);
+        
+        GodData data = dataManager.getIfPresent(uuid);
         if (data != null) {
             boolean actualState = player.isInvulnerable();
             boolean recordedState = data.isGodMode();
@@ -56,7 +65,11 @@ public class GodListener implements Listener {
             }
         }
         
-        dataManager.removeFromCache(player.getUniqueId());
+        dataManager.removeFromCache(uuid);
+        
+        if (godModePlayers.isEmpty()) {
+            stopOxygenTask();
+        }
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -66,9 +79,8 @@ public class GodListener implements Listener {
         }
         
         Player player = (Player) event.getEntity();
-        GodData data = dataManager.getIfPresent(player.getUniqueId());
         
-        if (data != null && data.isGodMode()) {
+        if (godModePlayers.contains(player.getUniqueId())) {
             event.setCancelled(true);
         }
     }
@@ -80,33 +92,63 @@ public class GodListener implements Listener {
         }
         
         Player player = (Player) event.getEntity();
-        GodData data = dataManager.getIfPresent(player.getUniqueId());
         
-        if (data != null && data.isGodMode()) {
+        if (godModePlayers.contains(player.getUniqueId())) {
             if (event.getFoodLevel() < player.getFoodLevel()) {
                 event.setCancelled(true);
             }
         }
     }
     
-    private void startOxygenTask() {
-        oxygenTaskId = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
-                GodData data = dataManager.getIfPresent(player.getUniqueId());
-                if (data != null && data.isGodMode()) {
-                    if (player.getRemainingAir() < player.getMaximumAir()) {
-                        player.setRemainingAir(player.getMaximumAir());
+    private void startOxygenTaskIfNeeded() {
+        if (oxygenTaskId == -1 && !godModePlayers.isEmpty()) {
+            oxygenTaskId = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
+                if (godModePlayers.isEmpty()) {
+                    stopOxygenTask();
+                    return;
+                }
+                
+                for (UUID uuid : godModePlayers) {
+                    Player player = plugin.getServer().getPlayer(uuid);
+                    if (player != null && player.isOnline()) {
+                        if (player.getRemainingAir() < player.getMaximumAir()) {
+                            player.setRemainingAir(player.getMaximumAir());
+                        }
+                    } else {
+                        godModePlayers.remove(uuid);
                     }
                 }
-            }
-        }, 20L, 20L).getTaskId();
+            }, 20L, 20L).getTaskId();
+        }
     }
     
-    public void unregister() {
-        org.bukkit.event.HandlerList.unregisterAll(this);
+    private void stopOxygenTask() {
         if (oxygenTaskId != -1) {
             plugin.getServer().getScheduler().cancelTask(oxygenTaskId);
             oxygenTaskId = -1;
         }
+    }
+    
+    public void addGodPlayer(UUID uuid) {
+        if (godModePlayers.add(uuid)) {
+            startOxygenTaskIfNeeded();
+        }
+    }
+    
+    public void removeGodPlayer(UUID uuid) {
+        godModePlayers.remove(uuid);
+        if (godModePlayers.isEmpty()) {
+            stopOxygenTask();
+        }
+    }
+    
+    public boolean isGodPlayer(UUID uuid) {
+        return godModePlayers.contains(uuid);
+    }
+    
+    public void unregister() {
+        org.bukkit.event.HandlerList.unregisterAll(this);
+        stopOxygenTask();
+        godModePlayers.clear();
     }
 }

@@ -2,6 +2,7 @@ package com.oolonghoo.woomni.module.inventory.gui;
 
 import com.oolonghoo.woomni.module.inventory.InventorySettings;
 import com.oolonghoo.woomni.module.inventory.OfflinePlayerDataUtil;
+import com.oolonghoo.woomni.util.EconomyUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -293,7 +294,22 @@ public class InvSeeGUI implements InventoryHolder {
             .append(Component.text(String.valueOf(deaths), NamedTextColor.RED)));
         
         // 余额 (如果有Vault)
-        // TODO: 需要Vault集成
+        if (EconomyUtil.hasVault()) {
+            String vaultBalance = EconomyUtil.getVaultBalanceFormatted(targetUUID);
+            if (vaultBalance != null) {
+                lore.add(Component.text("金币: ", NamedTextColor.GRAY)
+                    .append(Component.text(vaultBalance, NamedTextColor.GOLD)));
+            }
+        }
+        
+        // 点券 (如果有PlayerPoints)
+        if (EconomyUtil.hasPlayerPoints()) {
+            String points = EconomyUtil.getPlayerPointsFormatted(targetUUID);
+            if (points != null) {
+                lore.add(Component.text("点券: ", NamedTextColor.GRAY)
+                    .append(Component.text(points, NamedTextColor.LIGHT_PURPLE)));
+            }
+        }
         
         meta.lore(lore);
         dataButton.setItemMeta(meta);
